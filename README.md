@@ -53,7 +53,7 @@ Every topic folder has the same three subfolders:
 | 00 | [Foundations](00_Foundations/) | Not started | – | – | – |
 | 01 | [Arrays](01_Arrays/) | Not started | – | – | – |
 | 02 | [Strings](02_Strings/) | Not started | – | – | – |
-| 03 | [Linked Lists](03_Linked_Lists/) | **In progress** | 1 | 1 | 1 |
+| 03 | [Linked Lists](03_Linked_Lists/) | **In progress** | 2 PDFs | 1 | 2 |
 | 04 | [Stacks & Queues](04_Stacks_and_Queues/) | Not started | – | – | – |
 | 05 | [Recursion & Backtracking](05_Recursion_and_Backtracking/) | Not started | – | – | – |
 | 06 | [Trees & BST](06_Trees_and_BST/) | Not started | – | – | – |
@@ -71,12 +71,31 @@ Every topic folder has the same three subfolders:
 
 ## File naming convention
 
+> **Notes and solved-questions files are always PDFs.** Markdown is a build
+> input only; it lives in `notes/_source/` and is never the deliverable.
+
 | Kind | Pattern | Example |
 |---|---|---|
-| Concept guide | `<topic>-guide.md` | `linked-lists-cpp-guide.md` |
+| Concept guide | `<Topic>-Guide.pdf` | `Linked-Lists-Guide.pdf` |
+| Solved questions | `<Topic>-Solved-Questions.pdf` | `Linked-Lists-Solved-Questions.pdf` |
+| Markdown source | `notes/_source/<topic>-guide.md` | `notes/_source/linked-lists-cpp-guide.md` |
 | Practice scaffold | `practice-<NN>-<subject>.cpp` | `practice-01-basics.cpp` |
 | Reference solutions | `reference-<subject>.cpp` | `reference-all-patterns.cpp` |
 | Single problem solution | `LC<number>-<slug>.cpp` | `LC206-reverse-linked-list.cpp` |
+
+---
+
+## Building a notes PDF
+
+`_Templates/md_to_pdf.py` converts any notes markdown into a styled PDF matching
+the house design — cover page, auto table of contents, syntax-highlighted code,
+formatted tables, callout boxes, page numbers.
+
+```bash
+python3 _Templates/md_to_pdf.py <input.md> <Output.pdf>
+```
+
+Needs `markdown`, `pygments` and `playwright` (with chromium).
 
 ---
 
@@ -88,6 +107,39 @@ g++ -std=c++17 -O2 -Wall -o out file.cpp && ./out
 
 Practice files are self-checking — they print `ok` / `FAIL` per test case, so
 you know immediately whether your implementation is correct.
+
+---
+
+## Version control
+
+This folder is a git repo pushed to `github.com/mhk-8/DSA`.
+
+`.gitignore` is set up so that **documents are tracked and build output is not**:
+
+| Tracked | Ignored |
+|---|---|
+| `.md` `.pdf` `.cpp` `.h` `.txt` `.py` `.png` `.svg` | `.o` `.obj` `.exe` `.out` `.dll` and friends |
+| every notes / practice / solutions file | extensionless binaries (`out`, `prac`, `ref`) |
+| `_Progress/` and `_Templates/` | `build/` `bin/` `.vscode/` `.idea/` |
+| | `desktop.ini` `Thumbs.db` `~$*` (OneDrive/Office noise) |
+| | `input.txt` `output.txt` (competitive-programming scratch) |
+
+The extensionless-binary rule matters because `g++ -o out file.cpp` produces a
+file called `out` with no extension, which no `*.something` pattern can catch.
+If you ever need to commit an extensionless file on purpose:
+
+```bash
+git add -f <filename>
+```
+
+Everyday flow:
+
+```bash
+git status              # should show only real changes, never binaries
+git add -A
+git commit -m "Linked lists: solved questions PDF"
+git push
+```
 
 ---
 

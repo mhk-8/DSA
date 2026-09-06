@@ -1,0 +1,154 @@
+# ==============================================================
+#  Claude DSA — .gitignore
+#
+#  TRACK   : notes, guides, PDFs, C++ source, plans, logs
+#  IGNORE  : anything the compiler or the OS generates
+#
+#  Order matters in this file: for any given path, the LAST
+#  matching rule wins. Do not reshuffle the sections.
+# ==============================================================
+
+
+# --------------------------------------------------------------
+# 1. Extensionless compiled binaries
+#
+#    You build with `g++ -std=c++17 -o out file.cpp`, which
+#    produces a binary called `out` — no extension, so no
+#    `*.something` rule can catch it.
+#
+#    The three lines below say: ignore everything, but walk into
+#    every directory, and keep every file that has a dot in its
+#    name. Net effect: extensionless build products (out, prac,
+#    ref, part7, verify ...) disappear from `git status`, while
+#    every real document is untouched.
+#
+#    To commit an extensionless file on purpose:
+#        git add -f <filename>
+# --------------------------------------------------------------
+*
+!*/
+!*.*
+!LICENSE
+!Makefile
+
+
+# --------------------------------------------------------------
+# 2. Document and source types that MUST be tracked
+#    (explicit, so the intent of this repo is obvious)
+# --------------------------------------------------------------
+# notes, guides, READMEs, weekly plan, problem log
+!*.md
+# solved-questions books
+!*.pdf
+# solutions, practice files, templates
+!*.cpp
+!*.c
+!*.cc
+!*.h
+!*.hpp
+# plain-text notes
+!*.txt
+# helper and generator scripts
+!*.py
+!*.sh
+!*.json
+!*.yml
+!*.yaml
+# diagrams and screenshots
+!*.png
+!*.jpg
+!*.jpeg
+!*.svg
+!*.gif
+# repo config
+!.gitignore
+!.gitattributes
+
+
+# --------------------------------------------------------------
+# 3. Compiled output (re-ignored after the whitelist above)
+# --------------------------------------------------------------
+*.o
+*.obj
+*.out
+*.exe
+*.app
+*.so
+*.dll
+*.dylib
+*.a
+*.lib
+*.gch
+*.pch
+*.ilk
+*.pdb
+*.idb
+*.exp
+*.d
+*.su
+*.dSYM/
+
+
+# --------------------------------------------------------------
+# 4. Build and tooling directories
+# --------------------------------------------------------------
+build/
+bin/
+obj/
+out/
+Debug/
+Release/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+.cache/
+__pycache__/
+
+
+# --------------------------------------------------------------
+# 5. Editors and IDEs
+# --------------------------------------------------------------
+.vscode/
+.idea/
+.vs/
+*.code-workspace
+*.user
+*.suo
+*.sln
+*.vcxproj*
+*.cbp
+*.layout
+*.depend
+*.swp
+*.swo
+*~
+
+
+# --------------------------------------------------------------
+# 6. Windows / OneDrive / macOS noise
+# --------------------------------------------------------------
+desktop.ini
+Thumbs.db
+ehthumbs.db
+$RECYCLE.BIN/
+*.lnk
+*.stackdump
+.DS_Store
+._*
+~$*
+
+
+# --------------------------------------------------------------
+# 7. Scratch files
+#    Competitive-programming habit: local stdin/stdout dumps.
+#    Listed last so they beat the !*.txt rule in section 2.
+# --------------------------------------------------------------
+scratch/
+temp/
+tmp/
+*.log
+*.tmp
+input.txt
+output.txt
+in.txt
+out.txt
