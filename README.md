@@ -22,7 +22,7 @@ Claude DSA/
 ├── 03_Linked_Lists/           <- IN PROGRESS
 ├── 04_Stacks_and_Queues/
 ├── 05_Recursion_and_Backtracking/
-├── 06_Trees_and_BST/
+├── 06_Trees_and_BST/           <- MATERIAL READY
 ├── 07_Heaps_and_Priority_Queues/
 ├── 08_Hashing/
 ├── 09_Searching_and_Sorting/
@@ -56,7 +56,7 @@ Every topic folder has the same three subfolders:
 | 03 | [Linked Lists](03_Linked_Lists/) | **In progress** | 2 PDFs | 1 | 2 |
 | 04 | [Stacks & Queues](04_Stacks_and_Queues/) | Not started | – | – | – |
 | 05 | [Recursion & Backtracking](05_Recursion_and_Backtracking/) | Not started | – | – | – |
-| 06 | [Trees & BST](06_Trees_and_BST/) | Not started | – | – | – |
+| 06 | [Trees & BST](06_Trees_and_BST/) | **Material ready** | 2 PDFs | 1 | 2 |
 | 07 | [Heaps & Priority Queues](07_Heaps_and_Priority_Queues/) | Not started | – | – | – |
 | 08 | [Hashing](08_Hashing/) | Not started | – | – | – |
 | 09 | [Searching & Sorting](09_Searching_and_Sorting/) | Not started | – | – | – |
@@ -92,10 +92,25 @@ the house design — cover page, auto table of contents, syntax-highlighted code
 formatted tables, callout boxes, page numbers.
 
 ```bash
-python3 _Templates/md_to_pdf.py <input.md> <Output.pdf>
+python3 _Templates/md_to_pdf.py <input.md> <Output.pdf> [--patterns N] [--problems N]
 ```
 
 Needs `markdown`, `pygments` and `playwright` (with chromium).
+
+## Building a solved-questions PDF
+
+`_Templates/build_solved_pdf.py` builds a `<Topic>-Solved-Questions.pdf` from a
+metadata JSON file plus a compiled-and-tested `.cpp`. The printed code is
+extracted verbatim from the marked blocks in that `.cpp`, so the book can never
+drift from the code that was actually tested.
+
+```bash
+python3 _Templates/build_solved_pdf.py <meta.json> <Output.pdf>
+```
+
+The metadata file lives in the topic's `notes/_source/` folder; see
+`06_Trees_and_BST/notes/_source/trees-and-bst-solved.meta.json` for the shape.
+Wrap each solution in the source file with `//>>>BEGIN LC123` … `//<<<END LC123`.
 
 ---
 

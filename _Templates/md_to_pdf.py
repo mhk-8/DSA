@@ -152,6 +152,8 @@ def main():
     ap.add_argument("--kicker", default="Data Structures & Algorithms · C++")
     ap.add_argument("--owner", default="Hari")
     ap.add_argument("--note", default="")
+    ap.add_argument("--patterns", default="12")
+    ap.add_argument("--problems", default="33")
     a = ap.parse_args()
 
     raw = open(a.src, encoding="utf-8").read()
@@ -173,9 +175,9 @@ def main():
 
     stats = [
         (str(body_md.count("\n## ")), "Sections"),
-        ("12", "Patterns"),
+        (a.patterns, "Patterns"),
         (str(len(re.findall(r'```cpp', body_md))), "Code blocks"),
-        ("33", "Problems"),
+        (a.problems, "Problems"),
     ]
     facts = "".join(f'<div class="fact"><div class="n">{n}</div><div class="l">{l}</div></div>'
                     for n, l in stats)

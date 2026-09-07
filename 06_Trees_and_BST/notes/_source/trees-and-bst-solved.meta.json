@@ -1,0 +1,463 @@
+{
+ "title": "Trees & BST",
+ "subtitle": "Every problem from Part 8 of the Trees & BST guide, in order, with a worked C++ solution, the approach behind it, and the mistake that most often breaks it.",
+ "kicker": "Data Structures & Algorithms · C++",
+ "source_cpp": "../../solutions/reference-part8-solutions.cpp",
+ "stats": [
+  [
+   "38",
+   "Problems"
+  ],
+  [
+   "3",
+   "Tiers"
+  ],
+  [
+   "14",
+   "Patterns"
+  ],
+  [
+   "80",
+   "Tests passing"
+  ]
+ ],
+ "footer": "Prepared for <b>Hari</b> &middot; on-campus placement preparation<br>Companion to <b>Trees-and-BST-Guide.pdf</b> &middot; code verified against <b>reference-part8-solutions.cpp</b><br>Every solution in this document was compiled with <b>g++ -std=c++17 -O2 -Wall</b> and passes its test cases.",
+ "tiers": [
+  {
+   "name": "Tier 1 — Learn the mechanics",
+   "blurb": "Twelve problems. When you can write all twelve from a blank page — recursively and the traversals iteratively — you have the mechanics. Do not move on before that is true.",
+   "problems": [
+    {
+     "id": "LC94",
+     "num": 94,
+     "title": "Binary Tree Inorder Traversal",
+     "difficulty": "EASY",
+     "pattern": "Pattern 1 — Traversal & collection",
+     "problem": "Given the root of a binary tree, return the inorder traversal of its nodes' values — left subtree, then the node, then the right subtree. The follow-up asks for an iterative solution.",
+     "approach": "The recursive version is the three-line skeleton with the visit in the middle. The iterative version replaces the call stack with a real `stack`: dive as far left as you can while pushing every node, pop and visit, then step right and repeat.\n\nThe loop condition `cur || !st.empty()` matters — the moment you step right into a null child, the stack still holds unfinished ancestors, so an `!st.empty()` check alone would exit early.",
+     "complexity": "O(n) time · O(h) space for the stack — O(log n) balanced, O(n) skewed",
+     "trap": "Do not push a node twice. In the iterative version the inner `while` pushes on the way down and the outer loop pops exactly once, so each node is visited a single time. Remember why inorder matters: on a BST it emits values in sorted order, which is the key to LC 98, 230, 99 and 173."
+    },
+    {
+     "id": "LC144",
+     "num": 144,
+     "title": "Binary Tree Preorder Traversal",
+     "difficulty": "EASY",
+     "pattern": "Pattern 1 — Traversal & collection",
+     "problem": "Return the preorder traversal — the node first, then the left subtree, then the right subtree.",
+     "approach": "Recursively, move the `push_back` to the top of the function. Iteratively, use a stack and push the **right** child first so the left one pops first — a stack reverses the order in which you push.\n\nPreorder is the order you use whenever a node must be processed before its children: copying a tree, serialising one, or carrying state downward.",
+     "complexity": "O(n) time · O(h) space",
+     "trap": "Pushing left before right in the iterative version silently gives you a mirrored traversal, which passes on a symmetric test tree and fails on every real one. Always test traversals on a lopsided tree."
+    },
+    {
+     "id": "LC145",
+     "num": 145,
+     "title": "Binary Tree Postorder Traversal",
+     "difficulty": "EASY",
+     "pattern": "Pattern 1 — Traversal & collection",
+     "problem": "Return the postorder traversal — left subtree, right subtree, then the node.",
+     "approach": "Recursively, the `push_back` goes last. Iteratively there is a neat trick: run a preorder but push **left before right**, which produces node-right-left, then `reverse` the result. Reversing node-right-left gives left-right-node, which is exactly postorder.\n\nPostorder is the order for anything where the parent's answer depends on the children's — heights, sizes, and safe deletion of a tree.",
+     "complexity": "O(n) time · O(h) space, plus O(n) for the output that gets reversed",
+     "trap": "The honest two-stack or visited-flag postorder is fine too, but the reverse trick is shorter and less error-prone under interview pressure. Say out loud that you are building node-right-left and reversing it, otherwise it looks like you wrote preorder by mistake."
+    },
+    {
+     "id": "LC102",
+     "num": 102,
+     "title": "Binary Tree Level Order Traversal",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 5 — Level-order / BFS",
+     "problem": "Return the values of the nodes level by level, from left to right, as a vector of vectors — one inner vector per level.",
+     "approach": "BFS with a queue. The whole technique is one line: capture `int sz = q.size()` **before** the inner loop. At that instant the queue holds exactly the current level, so looping `sz` times processes precisely one level and the children you push land in the next round.\n\nThis template with a one-line edit inside the loop solves 103, 107, 199, 111, 515, 637, 662 and 116 — learn it once and reuse it everywhere.",
+     "complexity": "O(n) time · O(w) space, where w is the widest level — up to n/2 for a perfect tree",
+     "trap": "Reading `q.size()` inside the loop instead of freezing it beforehand mixes the children you just pushed into the current level, and every level smears into one. This is the single most common BFS bug in the topic."
+    },
+    {
+     "id": "LC104",
+     "num": 104,
+     "title": "Maximum Depth of Binary Tree",
+     "difficulty": "EASY",
+     "pattern": "Pattern 2 — Aggregate over the whole tree",
+     "problem": "Return the number of nodes along the longest path from the root down to the farthest leaf.",
+     "approach": "The purest instance of the universal skeleton. An empty tree has depth 0; otherwise the answer is one more than the deeper of the two children.\n\nEvery line maps onto a step of the model: the base case returns the identity value, the two recursive calls are trusted, and the combine step is `1 + max`.",
+     "complexity": "O(n) time · O(h) space",
+     "trap": "This problem measures depth in **nodes**, so an empty tree is 0 and a single node is 1. Diameter (LC 543) measures in **edges**. Mixing the two conventions produces answers that are off by exactly one, which is why it is worth stating which unit you are using before you write anything."
+    },
+    {
+     "id": "LC111",
+     "num": 111,
+     "title": "Minimum Depth of Binary Tree",
+     "difficulty": "EASY",
+     "pattern": "Pattern 2 — Aggregate, with the classic trap",
+     "problem": "Return the number of nodes along the shortest path from the root down to the nearest **leaf**. A leaf is a node with no children at all.",
+     "approach": "This is not the mirror image of LC 104. A node with only one child would report a depth of 1 through its missing side, but a null child is not a leaf and therefore not a valid path end. So handle the single-child node explicitly: if one side is missing, the answer must come from the side that exists.\n\nThe BFS version is better in practice: return the depth of the **first leaf you dequeue**, which stops immediately instead of exploring a deep tree to the bottom.",
+     "complexity": "DFS O(n) time, O(h) space · BFS O(n) worst case but stops at the shallowest leaf",
+     "trap": "Writing `1 + min(minDepth(left), minDepth(right))` returns 1 on the tree `[1,2]` — wrong, the answer is 2. If a submission fails on a skewed input, this is almost always why."
+    },
+    {
+     "id": "LC226",
+     "num": 226,
+     "title": "Invert Binary Tree",
+     "difficulty": "EASY",
+     "pattern": "Pattern 6 — Structural edit",
+     "problem": "Invert the tree — mirror it about its vertical axis — and return the root.",
+     "approach": "Swap the two child pointers at every node and recurse. Order does not matter here: swap first and recurse, or recurse first and swap, both work, because the swap and the recursion touch disjoint things.\n\nAn iterative BFS version is equally acceptable — dequeue a node, swap its children, enqueue them.",
+     "complexity": "O(n) time · O(h) space",
+     "trap": "Swap the **pointers**, not the values. Swapping `left->val` with `right->val` only exchanges two numbers and leaves the whole structure below them untouched, which passes on a two-node test and fails on anything deeper."
+    },
+    {
+     "id": "LC100",
+     "num": 100,
+     "title": "Same Tree",
+     "difficulty": "EASY",
+     "pattern": "Pattern 6 — Two-tree lockstep recursion",
+     "problem": "Given the roots of two binary trees, decide whether they are structurally identical and have the same values at every position.",
+     "approach": "Recurse on two nodes at once. The base cases enumerate the null combinations: both null means equal, exactly one null means unequal. After that, compare the values and recurse into the matching pairs.\n\nThis two-argument shape is the template for the whole comparison family — symmetric, subtree, merge, flip-equivalent.",
+     "complexity": "O(min(n, m)) time · O(h) space",
+     "trap": "Get the null cases in the right order: `if (!p && !q) return true;` must come **before** `if (!p || !q) return false;`, or two empty trees are reported as different."
+    },
+    {
+     "id": "LC101",
+     "num": 101,
+     "title": "Symmetric Tree",
+     "difficulty": "EASY",
+     "pattern": "Pattern 6 — Mirrored lockstep",
+     "problem": "Decide whether a binary tree is a mirror image of itself about its centre.",
+     "approach": "This is LC 100 with the pairing crossed. Call a helper on `(root->left, root->right)`, and inside it compare `a->left` with `b->right` and `a->right` with `b->left`.\n\nAn empty tree is symmetric, so guard the root before calling the helper.",
+     "complexity": "O(n) time · O(h) space",
+     "trap": "The crossed pairing is the entire problem. Comparing `a->left` with `b->left` checks whether the two subtrees are *identical* rather than mirrored, which reports `[1,2,2,null,3,null,3]` as symmetric when it is not."
+    },
+    {
+     "id": "LC112",
+     "num": 112,
+     "title": "Path Sum",
+     "difficulty": "EASY",
+     "pattern": "Pattern 4 — Root-to-leaf path",
+     "problem": "Decide whether the tree has a root-to-leaf path whose node values add up to a given target.",
+     "approach": "Top-down: subtract the current value from the target on the way down, so by the time you reach a leaf the question is simply \"is what remains zero?\"\n\nDecide **at the leaf**, not at null. Then return the OR of the two children — short-circuit evaluation means the right subtree is skipped as soon as the left one succeeds.",
+     "complexity": "O(n) time · O(h) space",
+     "trap": "Testing `targetSum == 0` at a null node double-counts, because every leaf has two null children, and it also wrongly reports success on an empty tree. Two more edges: an empty tree is always `false`, and negative values mean you cannot prune a branch just because the running sum has already passed the target."
+    },
+    {
+     "id": "LC543",
+     "num": 543,
+     "title": "Diameter of Binary Tree",
+     "difficulty": "EASY",
+     "pattern": "Pattern 3 — Return one thing, record another",
+     "problem": "Return the length of the longest path between any two nodes in the tree, measured in **edges**. The path need not pass through the root.",
+     "approach": "The longest path bending at a given node is `height(left) + height(right)`. But that is not what the parent needs — the parent needs this node's height. So return the height and record the diameter in a member variable as you go.\n\nOne postorder pass answers it. Say the sentence out loud while you write it: *I return the height, and I record the diameter.*",
+     "complexity": "O(n) time · O(h) space",
+     "trap": "Calling a separate `height()` function from inside a `diameter()` recursion recomputes heights at every node and is O(n²) — it times out on large inputs and is a common interview rejection. Also note the answer is in edges, so a two-node tree has diameter 1, not 2."
+    },
+    {
+     "id": "LC110",
+     "num": 110,
+     "title": "Balanced Binary Tree",
+     "difficulty": "EASY",
+     "pattern": "Pattern 3 — The poison-value trick",
+     "problem": "Decide whether the tree is height-balanced: for every node, the heights of its two subtrees differ by at most one.",
+     "approach": "Same shape as diameter, with a twist that keeps it to a single pass: let the height function return `-1` to mean \"something below me is already unbalanced\", and propagate that poison value straight up without further work.\n\nThe top-level answer is then just `h(root) != -1`.",
+     "complexity": "O(n) time · O(h) space",
+     "trap": "The naive version — an `isBalanced` that calls `height` at every node — is O(n log n) on a balanced tree and O(n²) on a skewed one. Also note the condition must hold at **every** node, not only at the root: a tree can have balanced halves at the top and be badly unbalanced deeper down."
+    }
+   ]
+  },
+  {
+   "name": "Tier 2 — The placement core",
+   "blurb": "These are what actually get asked. LC 236, 98, 105 and 450 are the four most-asked tree questions in on-campus drives — be able to write them cold.",
+   "problems": [
+    {
+     "id": "LC700",
+     "num": 700,
+     "title": "Search in a Binary Search Tree",
+     "difficulty": "EASY",
+     "pattern": "Pattern 9 — BST operations",
+     "problem": "Given the root of a BST and a value, return the subtree rooted at the node with that value, or `nullptr` if it is not present.",
+     "approach": "Compare and descend: if the key is smaller go left, if larger go right, and stop when you land on it or run out of tree. Written iteratively it needs no extra space at all.\n\nThis compare-and-descend motion is the shape of the entire BST family — insert, delete, floor, ceil, closest value and LCA are all the same walk with a different action at each step.",
+     "complexity": "O(h) time · O(1) space iteratively — O(log n) balanced, O(n) skewed",
+     "trap": "Do not fall back on a full traversal. If a solution searches both subtrees it is O(n) and throws away the only property that makes a BST worth having. State the O(h) bound explicitly and note that it degrades to O(n) on a skewed tree."
+    },
+    {
+     "id": "LC701",
+     "num": 701,
+     "title": "Insert into a Binary Search Tree",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 9 — BST operations",
+     "problem": "Insert a value into a BST and return the root. The value is guaranteed not to be present already, and any valid BST result is accepted.",
+     "approach": "Descend to the empty slot where the key belongs and hang a new node there. The recursive form is cleanest: the base case creates the node, and each level reassigns its child from the return value.\n\nThat *reassign-from-the-return-value* idiom is worth internalising here, because delete (LC 450) is built on exactly the same mechanism.",
+     "complexity": "O(h) time · O(h) space recursive, O(1) iterative",
+     "trap": "Forgetting `return root;` at the end silently returns garbage and detaches the tree. And you must reassign — `insertIntoBST(root->left, val);` on its own, without `root->left =`, works only by accident for non-empty subtrees and loses the new node when the subtree is empty."
+    },
+    {
+     "id": "LC450",
+     "num": 450,
+     "title": "Delete Node in a BST",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 9 — the three cases",
+     "problem": "Delete the node with a given key from a BST and return the new root, keeping the BST property intact. The key may not exist.",
+     "approach": "Search down as usual. Once found, there are three cases. A leaf or a node with a single child is easy: return the child, which may be `nullptr`, and the parent's reassignment splices it in. A node with two children is the interesting one: copy in the value of its **inorder successor** — the smallest value in the right subtree — then delete that successor from the right subtree.\n\nThe successor works because it is the next value in sorted order, so putting it here keeps every ordering constraint on both sides intact. The inorder predecessor, the largest value in the left subtree, is equally valid.",
+     "complexity": "O(h) time · O(h) space",
+     "trap": "After copying the successor's value you must delete the successor from the **right subtree**, not from the whole tree — deleting by value from the root would find the copy you just made and delete the wrong node. This is the most-asked BST question in on-campus interviews; write it from scratch at least twice."
+    },
+    {
+     "id": "LC98",
+     "num": 98,
+     "title": "Validate Binary Search Tree",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 10 — the range method",
+     "problem": "Decide whether a binary tree is a valid BST: every value in a node's left subtree is strictly smaller, every value in its right subtree strictly larger, and both subtrees are themselves BSTs.",
+     "approach": "Pass down the open interval each subtree is allowed to live in. Going left tightens the upper bound to the current value; going right tightens the lower bound. A node outside its interval fails immediately.\n\nThe alternative is an inorder walk checking that values strictly increase, keeping a `prev` pointer — same complexity, and it generalises to LC 99 and LC 530.",
+     "complexity": "O(n) time · O(h) space",
+     "trap": "Checking only a node against its immediate parent is wrong: `[10,5,15,null,null,6,20]` passes that test and is not a BST, because 6 sits in 10's right subtree. And use `long` bounds — a node may legitimately hold `INT_MIN` or `INT_MAX`, which an `int` sentinel would reject."
+    },
+    {
+     "id": "LC230",
+     "num": 230,
+     "title": "Kth Smallest Element in a BST",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 10 — early-stopping inorder",
+     "problem": "Return the k-th smallest value in a BST, 1-indexed.",
+     "approach": "The inorder traversal of a BST is its sorted order, so the answer is the k-th value emitted. Decrement a counter at each visit and stop the moment it reaches zero, rather than materialising the whole sorted array.\n\nFor the follow-up — many queries on a tree that keeps changing — store a subtree size in each node. Then the k-th smallest is an O(h) descent: compare k against `size(left) + 1` at each step.",
+     "complexity": "O(h + k) time · O(h) space",
+     "trap": "The early return has to be checked in both places — once at the top of the function and once after the left recursion returns — otherwise the walk continues into the right subtree and overwrites the answer with a larger value."
+    },
+    {
+     "id": "LC235",
+     "num": 235,
+     "title": "Lowest Common Ancestor of a BST",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 7 — LCA by value",
+     "problem": "Given a BST and two nodes present in it, return their lowest common ancestor. A node may be an ancestor of itself.",
+     "approach": "In a BST you never have to search. If both values are smaller than the current node, the answer lies entirely in the left subtree; if both are larger, in the right. The first node where they do **not** both go the same way is the split point, and that is the LCA.\n\nWritten as a `while` loop it is four lines and uses no extra space.",
+     "complexity": "O(h) time · O(1) space",
+     "trap": "Do not reach for the general binary-tree LCA here — it works, but it is O(n) and throws away the BST property the interviewer is testing for. Note also that the comparisons are by **value** in this problem, whereas LC 236 compares node **pointers**."
+    },
+    {
+     "id": "LC236",
+     "num": 236,
+     "title": "Lowest Common Ancestor of a Binary Tree",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 7 — LCA",
+     "problem": "Given a binary tree with no ordering property and two nodes that are both present, return their lowest common ancestor. A node may be an ancestor of itself.",
+     "approach": "Four lines, and worth memorising exactly. If the current node is null or is one of the two targets, return it. Otherwise recurse into both sides and read the results as \"a target I found below me, or the answer\": if **both** sides returned something, the two targets are on opposite sides and this node is the meeting point; if only one side did, pass that find upward.\n\nThe base case `root == p || root == q` is what makes the ancestor-of-itself case work without any special handling.",
+     "complexity": "O(n) time · O(h) space",
+     "trap": "This solution relies on both nodes actually being present. If one might be missing, it returns the other one instead of null, so you must add a verification pass — say so if the interviewer removes that guarantee. Also note the comparison is by pointer identity here, not by value."
+    },
+    {
+     "id": "LC108",
+     "num": 108,
+     "title": "Convert Sorted Array to Binary Search Tree",
+     "difficulty": "EASY",
+     "pattern": "Pattern 8 — construction",
+     "problem": "Turn a sorted array into a height-balanced BST.",
+     "approach": "Take the middle element as the root and recurse on the two halves. Choosing the middle is exactly what forces balance — each side gets half the remaining elements, so the height is O(log n).\n\nBuild over index ranges rather than copying subarrays; slicing turns a linear algorithm into a quadratic one.",
+     "complexity": "O(n) time · O(log n) space for the recursion",
+     "trap": "Write the midpoint as `lo + (hi - lo) / 2` rather than `(lo + hi) / 2` — the habit matters once indices are large enough to overflow. The base case is `lo > hi`, not `lo == hi`, which would drop every single-element range."
+    },
+    {
+     "id": "LC105",
+     "num": 105,
+     "title": "Construct Binary Tree from Preorder and Inorder Traversal",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 8 — construction",
+     "problem": "Given the preorder and inorder traversals of a binary tree with distinct values, reconstruct the tree.",
+     "approach": "Say the invariant out loud: **preorder gives the root, inorder says where it splits.** Take the next value from the preorder array as the root, find it in the inorder array, and everything to its left in the inorder is the left subtree, everything to its right is the right subtree.\n\nBuild a hash map from value to inorder index once, so each root lookup is O(1). Consume the preorder array left to right with a single moving index, and build the left subtree before the right — that order is what keeps the index in step.",
+     "complexity": "O(n) time with the hash map · O(n) space",
+     "trap": "Without the map, scanning the inorder array for each root makes it O(n²) on a skewed tree. And the preorder index must be a single shared cursor — passing a local copy down each branch quietly builds the wrong tree."
+    },
+    {
+     "id": "LC106",
+     "num": 106,
+     "title": "Construct Binary Tree from Inorder and Postorder Traversal",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 8 — construction",
+     "problem": "Given the inorder and postorder traversals of a binary tree with distinct values, reconstruct the tree.",
+     "approach": "Same idea as LC 105, read backwards. The **last** element of a postorder is the root, so walk the postorder array from the end. The element before the root belongs to the right subtree, so build the **right** child before the left one.\n\nEverything else — the value-to-index map, the range recursion — is identical.",
+     "complexity": "O(n) time · O(n) space",
+     "trap": "Building the left subtree first here consumes the postorder cursor in the wrong order and produces a mirrored, wrong tree that still has the right node count. Worth knowing for interviews: preorder + postorder alone does **not** determine a tree uniquely unless every node has 0 or 2 children."
+    },
+    {
+     "id": "LC103",
+     "num": 103,
+     "title": "Binary Tree Zigzag Level Order Traversal",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 5 — BFS variant",
+     "problem": "Return the level-order traversal, but alternate direction: left to right on the first level, right to left on the second, and so on.",
+     "approach": "The LC 102 template with a boolean that flips each level. Rather than building the level and reversing it, size the vector up front and write each value straight into its final slot — index `i` when going left to right, `sz - 1 - i` when going right to left.\n\nA deque-based version is equally valid: push front or back depending on the direction.",
+     "complexity": "O(n) time · O(w) space",
+     "trap": "Flip the direction flag once per level, at the end of the outer loop — flipping it inside the inner loop reverses per node and scrambles everything. Note the traversal itself never changes direction; only the way you record each level does."
+    },
+    {
+     "id": "LC199",
+     "num": 199,
+     "title": "Binary Tree Right Side View",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 5 — BFS variant",
+     "problem": "Standing to the right of the tree, return the values of the nodes you can see, ordered top to bottom.",
+     "approach": "The visible node on each level is the **last** one in level order, so run the LC 102 template and record the value when `i == sz - 1`.\n\nA DFS alternative visits right before left and records the first node seen at each new depth — useful to mention, and it is the natural way to get the left view too.",
+     "complexity": "O(n) time · O(w) space",
+     "trap": "The rightmost visible node is not always the deepest right child — a long left branch can be the only node on its level. Taking `root->right` repeatedly is wrong; you must go level by level."
+    },
+    {
+     "id": "LC113",
+     "num": 113,
+     "title": "Path Sum II",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 4 — paths with backtracking",
+     "problem": "Return **all** root-to-leaf paths whose values sum to a given target, each as a list of node values.",
+     "approach": "LC 112 with the path recorded. Push the value on the way in, record a copy of the path when you hit a leaf with the target exhausted, and `pop_back` on the way out.\n\nThat `pop_back` is the backtracking step: it undoes this node's contribution so the sibling branch starts from the correct state. Passing the path by value instead removes the need for it, at the cost of copying the vector at every node.",
+     "complexity": "O(n) time to walk, up to O(n·h) to copy the results · O(h) working space",
+     "trap": "Forgetting `pop_back()` leaves nodes from other branches in the path, producing paths that do not exist. And record at the leaf, not at null — every leaf has two null children, so a null-based check emits each valid path twice."
+    },
+    {
+     "id": "LC129",
+     "num": 129,
+     "title": "Sum Root to Leaf Numbers",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 4 — root-to-leaf",
+     "problem": "Each root-to-leaf path spells a number by concatenating its digits, all values being 0–9. Return the sum of all such numbers.",
+     "approach": "Carry the number built so far downward: at each node the running value becomes `cur * 10 + node->val`. When you reach a leaf, that is the completed number — add it to the total.\n\nA cleaner variant returns the sum instead of accumulating into a member, which avoids the reset-between-calls problem entirely.",
+     "complexity": "O(n) time · O(h) space",
+     "trap": "Add to the total only at leaves. Adding at every node counts prefixes, and adding at null counts every path twice. If a member variable holds the total, reset it at the start of the public method — otherwise the second call on the same object returns nonsense."
+    },
+    {
+     "id": "LC114",
+     "num": 114,
+     "title": "Flatten Binary Tree to Linked List",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 13 — in-place restructuring",
+     "problem": "Flatten the tree in place into a \"linked list\" that uses the same `TreeNode` type: every `left` pointer is null and every `right` pointer leads to the next node in **preorder**.",
+     "approach": "The O(1)-space solution is a Morris-style splice. At each node with a left subtree, find the rightmost node of that left subtree — the node that would be visited last within it — hang the current right subtree off it, move the left subtree across into `right`, and null out `left`. Then step right and repeat.\n\nThe recursive alternative flattens right first, then left, then rewires — it is easier to write but costs O(h) stack.",
+     "complexity": "O(n) time · O(1) space",
+     "trap": "The pointer discipline from linked lists applies exactly: `cur->right = cur->left` before you have saved the old `cur->right` loses the entire right subtree. Splice first, then move, then cut."
+    },
+    {
+     "id": "LC116",
+     "num": 116,
+     "title": "Populating Next Right Pointers in Each Node",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 13 — in-place restructuring",
+     "problem": "In a **perfect** binary tree whose nodes have an extra `next` pointer, set each `next` to the node immediately to its right on the same level, or null if there is none.",
+     "approach": "A BFS solves it in O(n) space by linking each dequeued node to the front of the queue. The O(1)-space solution is better: once a level is linked, walk across it using the `next` pointers you just built, and use each node to link the level below — `n->left->next = n->right` within a parent, and `n->right->next = n->next->left` across two parents.\n\nBecause the tree is perfect, every node either has both children or none, which is what makes the two-line linking valid.",
+     "complexity": "O(n) time · O(1) space",
+     "trap": "This code relies on the tree being perfect. LC 117 drops that guarantee, and then you need a dummy-head plus tail pointer to assemble each level as you sweep — exactly the build-a-list-with-a-dummy-node technique from linked lists."
+    }
+   ]
+  },
+  {
+   "name": "Tier 3 — Harder, but they do appear",
+   "blurb": "Composite problems and the classic hard ones. Each is a pattern you already know, applied with one extra idea.",
+   "problems": [
+    {
+     "id": "LC124",
+     "num": 124,
+     "title": "Binary Tree Maximum Path Sum",
+     "difficulty": "HARD",
+     "pattern": "Pattern 3 — clamp at zero",
+     "problem": "A path is any sequence of nodes connected by edges; it need not pass through the root and may start and end anywhere. Return the maximum sum of node values along any path. Values may be negative.",
+     "approach": "The same return-one-record-another shape as diameter, with two adjustments for negatives. First, a child branch that sums to a negative number is worth dropping entirely, so clamp each child's contribution with `max(0, ...)`. Second, the value you return must be a **straight** path the parent can extend — the node plus its better single branch — while the value you record may **bend** at this node and use both branches.\n\nInitialise the answer to `INT_MIN`, not 0, or an all-negative tree returns 0.",
+     "complexity": "O(n) time · O(h) space",
+     "trap": "Returning `n->val + L + R` to the parent is the classic error: a bent path cannot be extended upward without visiting a node twice. Return one branch, record two."
+    },
+    {
+     "id": "LC297",
+     "num": 297,
+     "title": "Serialize and Deserialize Binary Tree",
+     "difficulty": "HARD",
+     "pattern": "Pattern 11 — encoding",
+     "problem": "Design an algorithm to encode a binary tree as a string and decode that string back into the identical tree.",
+     "approach": "Preorder with an explicit null marker. Serialising writes the value then recurses left and right, writing `#` for every null. Deserialising reads tokens in the same order: `#` returns null, anything else creates a node and recursively fills its left then right child.\n\nIt works because preorder plus null markers uniquely determines the structure — the recursion consumes exactly the tokens belonging to each subtree.",
+     "complexity": "O(n) time · O(n) space for the string and O(h) for the recursion",
+     "trap": "Without the null markers the string is ambiguous: `1,2` could mean 2 is either child. Also keep the delimiter — values can be multi-digit and negative, so concatenating digits without commas is undecodable. For a **BST** specifically (LC 449) you can skip the markers, because the ordering recovers the structure."
+    },
+    {
+     "id": "LC437",
+     "num": 437,
+     "title": "Path Sum III",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 4 + prefix-sum hash map",
+     "problem": "Count the paths summing to a target where the path must go **downward** but may start and end at any node, not only the root and leaves.",
+     "approach": "This is subarray-sum-equals-k run along the DFS path. Keep a running sum from the root and a map counting how many times each prefix sum has been seen on the current path. At each node, the number of valid paths ending here is the number of times `run - target` has occurred.\n\nSeed the map with `cnt[0] = 1` to represent the empty prefix — that is what lets a path starting at the root be counted.",
+     "complexity": "O(n) time · O(h) space for the map along one path",
+     "trap": "Decrement the map entry on the way out. Without that backtracking step, prefixes from one branch leak into a sibling branch and inflate the count. Use a 64-bit running sum — the values are large enough to overflow `int` on long paths, which is a hidden test case."
+    },
+    {
+     "id": "LC572",
+     "num": 572,
+     "title": "Subtree of Another Tree",
+     "difficulty": "EASY",
+     "pattern": "Pattern 6 — comparison",
+     "problem": "Decide whether `subRoot` appears as a subtree of `root` — a node of `root` together with **all** of its descendants must equal `subRoot` exactly.",
+     "approach": "Reuse `isSameTree` from LC 100 and try it at every node of the main tree. Straightforward and accepted.\n\nThe better answer, worth mentioning even if you code the simple one: serialise both trees preorder with null markers and delimiters, then check whether one string is a substring of the other. That is O(n + m) with KMP.",
+     "complexity": "O(n·m) time for the direct version, O(n + m) via serialisation · O(h) space",
+     "trap": "\"Subtree\" means the node **and everything below it** — a matching shape that continues with extra descendants does not count. In the serialisation version you must keep the null markers and a delimiter, or `12` matches inside `112` and you get false positives."
+    },
+    {
+     "id": "LC863",
+     "num": 863,
+     "title": "All Nodes Distance K in Binary Tree",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 12 — tree as a graph",
+     "problem": "Given a tree, a target node in it, and an integer k, return the values of all nodes exactly k edges away from the target — in any direction.",
+     "approach": "The difficulty is that distance runs upward as well as downward, and a tree has no parent pointers. So build them: one DFS recording each node's parent in a map. After that it is an ordinary BFS on a graph where each node has up to three neighbours — left, right and parent — with a visited set to stop you walking back.\n\nWhen the BFS reaches depth k, everything still in the queue is exactly the answer.",
+     "complexity": "O(n) time · O(n) space for the parent map and the visited set",
+     "trap": "The visited set is essential — without it the BFS bounces between a node and its parent forever. Handle `k = 0` (the answer is the target itself) and remember that `par[root]` is null, which the null check in the neighbour loop already covers."
+    },
+    {
+     "id": "LC99",
+     "num": 99,
+     "title": "Recover Binary Search Tree",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 10 — inorder inversions",
+     "problem": "Exactly two nodes of a BST were swapped by mistake. Recover the tree without changing its structure.",
+     "approach": "Walk inorder, which should produce strictly increasing values, and watch for inversions where the previous value exceeds the current one. Two swapped nodes produce **one** inversion if they are adjacent in the inorder sequence and **two** if they are not.\n\nSo: on the first inversion record `prev` as the first node; on every inversion record the current node as the second. Then swap the two values. Morris traversal gives the O(1)-space follow-up.",
+     "complexity": "O(n) time · O(h) space, or O(1) with Morris",
+     "trap": "Set `first` only once — `if (!first) first = prev;` — but update `second` on every inversion. Overwriting `first` on the second inversion recovers the adjacent case and breaks the distant one, which is exactly the test that separates working solutions from nearly-working ones."
+    },
+    {
+     "id": "LC337",
+     "num": 337,
+     "title": "House Robber III",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 14 — DP on trees",
+     "problem": "Houses form a binary tree. Robbing two directly-connected houses alerts the police. Return the maximum amount that can be robbed.",
+     "approach": "Each node returns a pair of alternatives: the best total if this node is **skipped**, and the best if it is **robbed**. If skipped, each child is free to choose its own better option. If robbed, both children must be skipped.\n\nThe answer at the root is the larger of its two options. This tuple-return shape is the standard way to do DP on a tree — no memo table needed, because each node is visited once.",
+     "complexity": "O(n) time · O(h) space",
+     "trap": "The naive recursion — rob this node plus the four grandchildren, or skip it and take the children — recomputes the same subtrees repeatedly and is exponential without memoisation. The pair-return version is the same idea, computed once per node."
+    },
+    {
+     "id": "LC662",
+     "num": 662,
+     "title": "Maximum Width of Binary Tree",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 5 — BFS with indices",
+     "problem": "Return the maximum width of the tree, where the width of a level is the distance between its leftmost and rightmost non-null nodes, counting the null positions between them.",
+     "approach": "Index the nodes as if the tree were a complete array: a node at index `i` has children at `2i` and `2i+1`. The width of a level is then `lastIndex - firstIndex + 1`.\n\nRun the standard BFS carrying each node's index alongside it, and take the first and last index of every level.",
+     "complexity": "O(n) time · O(w) space",
+     "trap": "The indices double every level, so on a deep skewed tree they overflow even 64-bit arithmetic. Rebase each level by subtracting its first index — the width is a difference, so shifting the whole level leaves the answer unchanged and keeps the numbers small. Using unsigned arithmetic makes the wrap-around harmless as well."
+    },
+    {
+     "id": "LC173",
+     "num": 173,
+     "title": "Binary Search Tree Iterator",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 10 — a paused inorder walk",
+     "problem": "Implement an iterator over a BST with `next()` returning the next smallest value and `hasNext()` reporting whether one remains. `next()` should run in average O(1) time and the whole iterator in O(h) memory.",
+     "approach": "This is the iterative inorder traversal from LC 94, frozen between calls. The constructor pushes the entire leftmost spine. `next()` pops the top — the smallest unvisited node — then pushes the leftmost spine of its right subtree. `hasNext()` is just whether the stack is non-empty.\n\nThe cost is amortised O(1): each node is pushed once and popped once across the whole iteration, so n calls do O(n) total work.",
+     "complexity": "Amortised O(1) per call · O(h) space",
+     "trap": "Do not flatten the tree into a vector in the constructor — that is O(n) memory and misses the point of the question. Say \"amortised O(1)\" rather than \"O(1)\": a single `next()` can do O(h) work, and it is the average across the traversal that is constant."
+    },
+    {
+     "id": "LC1448",
+     "num": 1448,
+     "title": "Count Good Nodes in Binary Tree",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 14 — top-down counting",
+     "problem": "A node is **good** if no node on the path from the root to it has a larger value. Count the good nodes in the tree.",
+     "approach": "Pure top-down: carry the maximum value seen so far on the path from the root. A node is good when its value is at least that maximum; then update the maximum and recurse.\n\nStart with `INT_MIN` so the root always counts, which matches the definition — the root has nothing above it.",
+     "complexity": "O(n) time · O(h) space",
+     "trap": "The comparison is `>=`, not `>` — a node equal to the running maximum still counts as good. And the maximum must be carried **down as a parameter**, not held in a member variable, or values from one branch leak into a sibling branch."
+    }
+   ]
+  }
+ ]
+}
