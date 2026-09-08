@@ -20,7 +20,7 @@ Claude DSA/
 ├── 01_Arrays/
 ├── 02_Strings/
 ├── 03_Linked_Lists/           <- IN PROGRESS
-├── 04_Stacks_and_Queues/
+├── 04_Stacks_and_Queues/       <- MATERIAL READY
 ├── 05_Recursion_and_Backtracking/
 ├── 06_Trees_and_BST/           <- MATERIAL READY
 ├── 07_Heaps_and_Priority_Queues/
@@ -54,7 +54,7 @@ Every topic folder has the same three subfolders:
 | 01 | [Arrays](01_Arrays/) | Not started | – | – | – |
 | 02 | [Strings](02_Strings/) | Not started | – | – | – |
 | 03 | [Linked Lists](03_Linked_Lists/) | **In progress** | 2 PDFs | 1 | 2 |
-| 04 | [Stacks & Queues](04_Stacks_and_Queues/) | Not started | – | – | – |
+| 04 | [Stacks & Queues](04_Stacks_and_Queues/) | **Material ready** | 2 PDFs | 1 | 2 |
 | 05 | [Recursion & Backtracking](05_Recursion_and_Backtracking/) | Not started | – | – | – |
 | 06 | [Trees & BST](06_Trees_and_BST/) | **Material ready** | 2 PDFs | 1 | 2 |
 | 07 | [Heaps & Priority Queues](07_Heaps_and_Priority_Queues/) | Not started | – | – | – |
