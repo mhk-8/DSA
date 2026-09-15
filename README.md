@@ -17,7 +17,7 @@ topic so material is easy to find months later.
 Claude DSA/
 ├── README.md                  <- you are here (master index)
 ├── 00_Foundations/            <- C++ basics, pointers, complexity, STL
-├── 01_Arrays/
+├── 01_Arrays/                 <- MATERIAL READY
 ├── 02_Strings/
 ├── 03_Linked_Lists/           <- IN PROGRESS
 ├── 04_Stacks_and_Queues/       <- MATERIAL READY
@@ -51,7 +51,7 @@ Every topic folder has the same three subfolders:
 | # | Topic | Status | Notes | Practice | Solutions |
 |---|---|---|---|---|---|
 | 00 | [Foundations](00_Foundations/) | Not started | – | – | – |
-| 01 | [Arrays](01_Arrays/) | Not started | – | – | – |
+| 01 | [Arrays](01_Arrays/) | **Material ready** | 2 PDFs | 1 | 2 |
 | 02 | [Strings](02_Strings/) | Not started | – | – | – |
 | 03 | [Linked Lists](03_Linked_Lists/) | **In progress** | 2 PDFs | 1 | 2 |
 | 04 | [Stacks & Queues](04_Stacks_and_Queues/) | **Material ready** | 2 PDFs | 1 | 2 |
