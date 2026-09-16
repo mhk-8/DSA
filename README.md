@@ -18,7 +18,7 @@ Claude DSA/
 ├── README.md                  <- you are here (master index)
 ├── 00_Foundations/            <- C++ basics, pointers, complexity, STL
 ├── 01_Arrays/                 <- MATERIAL READY
-├── 02_Strings/
+├── 02_Strings/                <- MATERIAL READY
 ├── 03_Linked_Lists/           <- IN PROGRESS
 ├── 04_Stacks_and_Queues/       <- MATERIAL READY
 ├── 05_Recursion_and_Backtracking/
@@ -52,7 +52,7 @@ Every topic folder has the same three subfolders:
 |---|---|---|---|---|---|
 | 00 | [Foundations](00_Foundations/) | Not started | – | – | – |
 | 01 | [Arrays](01_Arrays/) | **Material ready** | 2 PDFs | 1 | 2 |
-| 02 | [Strings](02_Strings/) | Not started | – | – | – |
+| 02 | [Strings](02_Strings/) | **Material ready** | 2 PDFs | 1 | 2 |
 | 03 | [Linked Lists](03_Linked_Lists/) | **In progress** | 2 PDFs | 1 | 2 |
 | 04 | [Stacks & Queues](04_Stacks_and_Queues/) | **Material ready** | 2 PDFs | 1 | 2 |
 | 05 | [Recursion & Backtracking](05_Recursion_and_Backtracking/) | Not started | – | – | – |
