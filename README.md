@@ -25,7 +25,7 @@ Claude DSA/
 ├── 06_Trees_and_BST/           <- MATERIAL READY
 ├── 07_Heaps_and_Priority_Queues/ <- MATERIAL READY
 ├── 08_Hashing/                  <- MATERIAL READY
-├── 09_Searching_and_Sorting/
+├── 09_Searching_and_Sorting/    <- MATERIAL READY
 ├── 10_Greedy/
 ├── 11_Dynamic_Programming/
 ├── 12_Graphs/
@@ -59,7 +59,7 @@ Every topic folder has the same three subfolders:
 | 06 | [Trees & BST](06_Trees_and_BST/) | **Material ready** | 2 PDFs | 1 | 2 |
 | 07 | [Heaps & Priority Queues](07_Heaps_and_Priority_Queues/) | **Material ready** | 2 PDFs | 1 | 2 |
 | 08 | [Hashing](08_Hashing/) | **Material ready** | 2 PDFs | 1 | 2 |
-| 09 | [Searching & Sorting](09_Searching_and_Sorting/) | Not started | – | – | – |
+| 09 | [Searching & Sorting](09_Searching_and_Sorting/) | **Material ready** | 2 PDFs | 1 | 2 |
 | 10 | [Greedy](10_Greedy/) | Not started | – | – | – |
 | 11 | [Dynamic Programming](11_Dynamic_Programming/) | Not started | – | – | – |
 | 12 | [Graphs](12_Graphs/) | Not started | – | – | – |
