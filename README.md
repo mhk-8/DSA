@@ -23,7 +23,7 @@ Claude DSA/
 ├── 04_Stacks_and_Queues/       <- MATERIAL READY
 ├── 05_Recursion_and_Backtracking/ <- MATERIAL READY
 ├── 06_Trees_and_BST/           <- MATERIAL READY
-├── 07_Heaps_and_Priority_Queues/
+├── 07_Heaps_and_Priority_Queues/ <- MATERIAL READY
 ├── 08_Hashing/
 ├── 09_Searching_and_Sorting/
 ├── 10_Greedy/
@@ -57,7 +57,7 @@ Every topic folder has the same three subfolders:
 | 04 | [Stacks & Queues](04_Stacks_and_Queues/) | **Material ready** | 2 PDFs | 1 | 2 |
 | 05 | [Recursion & Backtracking](05_Recursion_and_Backtracking/) | **Material ready** | 2 PDFs | 1 | 2 |
 | 06 | [Trees & BST](06_Trees_and_BST/) | **Material ready** | 2 PDFs | 1 | 2 |
-| 07 | [Heaps & Priority Queues](07_Heaps_and_Priority_Queues/) | Not started | – | – | – |
+| 07 | [Heaps & Priority Queues](07_Heaps_and_Priority_Queues/) | **Material ready** | 2 PDFs | 1 | 2 |
 | 08 | [Hashing](08_Hashing/) | Not started | – | – | – |
 | 09 | [Searching & Sorting](09_Searching_and_Sorting/) | Not started | – | – | – |
 | 10 | [Greedy](10_Greedy/) | Not started | – | – | – |

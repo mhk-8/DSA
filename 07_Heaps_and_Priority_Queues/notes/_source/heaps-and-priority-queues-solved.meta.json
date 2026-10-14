@@ -1,0 +1,463 @@
+{
+ "title": "Heaps & Priority Queues",
+ "subtitle": "Every problem from Part 13 of the Heaps & Priority Queues guide, in order, with a worked C++ solution, the approach behind it, and the mistake that most often breaks it.",
+ "kicker": "Data Structures & Algorithms · C++",
+ "source_cpp": "../../solutions/reference-part13-solutions.cpp",
+ "stats": [
+  [
+   "38",
+   "Problems"
+  ],
+  [
+   "3",
+   "Tiers"
+  ],
+  [
+   "12",
+   "Patterns"
+  ],
+  [
+   "115",
+   "Tests passing"
+  ]
+ ],
+ "footer": "Prepared for <b>Hari</b> &middot; on-campus placement preparation<br>Companion to <b>Heaps-and-Priority-Queues-Guide.pdf</b> &middot; code verified against <b>reference-part13-solutions.cpp</b><br>Every solution in this document was compiled with <b>g++ -std=c++17 -O2 -Wall</b> and passes its test cases.",
+ "tiers": [
+  {
+   "name": "Tier 1 — Learn the mechanics",
+   "blurb": "Thirteen problems: the bounded heap, top-K by frequency, custom comparators and the k-way merge. When you can write 215, 347, 973 and 23 cold — and say which way each heap points — you have the mechanics.",
+   "problems": [
+    {
+     "id": "LC1046",
+     "num": 1046,
+     "title": "Last Stone Weight",
+     "difficulty": "EASY",
+     "pattern": "Pattern 7 — Combine the two best",
+     "problem": "Repeatedly smash the two heaviest stones. Equal stones both vanish; otherwise the difference goes back. Return the last stone's weight, or 0.",
+     "approach": "The problem literally says *take the two largest, many times, while the set changes* — the definition of a heap problem. Build a max-heap from the array (O(n)), pop two, push the difference if it is non-zero.",
+     "complexity": "O(n log n) time · O(n) space",
+     "trap": "The loop condition is `pq.size() > 1`, so there are always two elements to pop. Popping twice under `!pq.empty()` reads `top()` on an empty heap when one stone is left — undefined behaviour. The final heap may be empty, so check before the last `top()`."
+    },
+    {
+     "id": "LC703",
+     "num": 703,
+     "title": "Kth Largest Element in a Stream",
+     "difficulty": "EASY",
+     "pattern": "Pattern 2 — Bounded heap, streaming",
+     "problem": "Design a class that receives numbers one at a time and, after each, returns the k-th largest so far.",
+     "approach": "Keep a **min-heap of the k largest** values seen. Each `add` pushes, and if the heap has grown past k, pops the smallest. The top is then the weakest member of the top-k club — exactly the k-th largest.\n\nThe constructor reuses `add`, so there is one code path.",
+     "complexity": "O(log k) per add · O(k) space",
+     "trap": "Min-heap, not max-heap. A max-heap of everything gives the largest, not the k-th largest, and would need k pops per query. The initial array may have fewer than k elements — the problem guarantees the heap has k by the time `add` returns, so do not assume it in the constructor."
+    },
+    {
+     "id": "LC215",
+     "num": 215,
+     "title": "Kth Largest Element in an Array",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 2 — Bounded heap",
+     "problem": "Return the k-th largest element of an unsorted array (the k-th in sorted order, not the k-th distinct).",
+     "approach": "Stream the array through a min-heap of size k: push, and pop whenever the size exceeds k. The top at the end is the answer.\n\nSorting is O(n log n). The heap is O(n log k). **Quickselect** is O(n) on average — the expected follow-up — and `nth_element` is its library form.",
+     "complexity": "O(n log k) time · O(k) space (quickselect: O(n) average, O(n²) worst)",
+     "trap": "Duplicates count: in `[3,2,3,1,2,4,5,5,6]` the 4th largest is 4, because both 5s count. The heap handles that for free. If you write quickselect, randomise the pivot — a fixed last-element pivot is O(n²) on sorted input, and LeetCode includes such tests."
+    },
+    {
+     "id": "LC347",
+     "num": 347,
+     "title": "Top K Frequent Elements",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 3 — Top-K by frequency",
+     "problem": "Return the k most frequent values, in any order.",
+     "approach": "Count with a hash map. Then run the size-k rule on `(frequency, value)` pairs: a **min-heap** ordered by frequency, evicting the least frequent whenever the size exceeds k.\n\nPutting the frequency **first** in the pair means the built-in `pair` ordering compares frequencies — no comparator needed.",
+     "complexity": "O(n log k) time · O(n) space for the counts",
+     "trap": "Pushing `(value, frequency)` instead of `(frequency, value)` silently orders by value. The O(n) follow-up is **bucket sort**: `bucket[f]` holds the values with frequency f, and you walk from f = n down. Mention it after giving the heap solution."
+    },
+    {
+     "id": "LC973",
+     "num": 973,
+     "title": "K Closest Points to Origin",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 2 — Max-heap of the k closest",
+     "problem": "Return the k points closest to (0, 0), in any order.",
+     "approach": "Closest = smallest distance, and you are keeping the k **smallest** — so a **max-heap** of size k, whose top is the farthest point kept and the first to be evicted.\n\nCompare **squared** distances: the order is the same and there is no floating point. Store the point's index with its distance.",
+     "complexity": "O(n log k) time · O(k) space",
+     "trap": "Direction again: a min-heap of size k here would keep the k *farthest* points. And `x*x + y*y` with coordinates up to 10⁴ fits in `int`, but in variants with larger coordinates it does not — store distances as `long long` out of habit."
+    },
+    {
+     "id": "LC1337",
+     "num": 1337,
+     "title": "The K Weakest Rows in a Matrix",
+     "difficulty": "EASY",
+     "pattern": "Pattern 2 — Tie-break by index",
+     "problem": "Each row is soldiers (1s) followed by civilians (0s). Row i is weaker than row j if it has fewer soldiers, or the same number and i < j. Return the k weakest rows, weakest first.",
+     "approach": "Push `(soldiers, row)` into a **max-heap** of size k. The pair ordering compares soldiers first and row index second, which is exactly the problem's weakness order — the strongest kept row is on top and gets evicted.\n\nPop into the result from the back so it comes out weakest first.",
+     "complexity": "O(m · n + m log k) time · O(k) space (binary search per row makes counting O(log n))",
+     "trap": "The tie-break is the trap. Because the heap is a max-heap on `(soldiers, row)`, a tie on soldiers evicts the **larger** index first — which is right. If you had used the negated or swapped pair, ties would come out reversed. Popping gives strongest-first, so fill the result backwards."
+    },
+    {
+     "id": "LC2558",
+     "num": 2558,
+     "title": "Take Gifts From the Richest Pile",
+     "difficulty": "EASY",
+     "pattern": "Pattern 1 — Take the best, put back",
+     "problem": "k times: take the largest pile and leave behind the floor of its square root. Return the total remaining.",
+     "approach": "Max-heap of piles. Each second: pop the largest, push `floor(sqrt(top))`. Sum the heap at the end.",
+     "complexity": "O(n + k log n) time · O(n) space",
+     "trap": "The answer can exceed `int` (n up to 10³ piles of 10⁹ each), so the return type is `long long` — sum in `long long`. `sqrt` on a `double` is exact enough for values up to 10⁹; for larger values use an integer square root."
+    },
+    {
+     "id": "LC506",
+     "num": 506,
+     "title": "Relative Ranks",
+     "difficulty": "EASY",
+     "pattern": "Pattern 1 — Pop in order",
+     "problem": "Given distinct scores, return each athlete's rank: \"Gold Medal\", \"Silver Medal\", \"Bronze Medal\" for the top three, and the place number as a string otherwise.",
+     "approach": "Push `(score, index)` into a max-heap. Popping yields athletes from first place downward, and the stored index says where to write each one's rank.",
+     "complexity": "O(n log n) time · O(n) space",
+     "trap": "Push the **index** with the score — the answer is indexed by athlete, not by score, and a bare score cannot tell you whose rank it is. (Sorting indices by score is equally good; the heap version practises the pattern.)"
+    },
+    {
+     "id": "LC451",
+     "num": 451,
+     "title": "Sort Characters By Frequency",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 3 — Frequency heap",
+     "problem": "Rearrange a string so characters appear in decreasing order of frequency. Characters with equal frequency may be in any order.",
+     "approach": "Count characters, push `(count, char)` into a max-heap, and pop: each pop appends `count` copies of that character. `string::append(count, ch)` does the copies in one call.",
+     "complexity": "O(n + σ log σ) for σ distinct characters · O(n) space",
+     "trap": "Equal characters must stay together — `\"eert\"` is valid, `\"eret\"` is not. Appending all copies of one character at once guarantees it. The problem is case-sensitive: `'A'` and `'a'` are different characters."
+    },
+    {
+     "id": "LC692",
+     "num": 692,
+     "title": "Top K Frequent Words",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 3 — Custom comparator, ties",
+     "problem": "Return the k most frequent words, sorted by frequency descending, and alphabetically for equal frequencies.",
+     "approach": "Same size-k heap as LC 347, but the free `pair` ordering gets the tie-break wrong, so write a functor. The heap must keep the **worst** candidate on top, so the comparator returns `true` when `a` is **better** than `b` (higher count, or same count and alphabetically smaller) — better candidates sink.\n\nPop gives worst-first; fill the result from the back.",
+     "complexity": "O(n log k) time · O(n) space",
+     "trap": "This problem exists to test the comparator rule: `cmp(a, b)` true means `a` goes **below** `b`. Test on a tie — `[\"b\",\"a\",\"c\"]`, k = 2 must give `[\"a\",\"b\"]`. Getting either half of the comparator backwards passes the examples without ties and fails the rest."
+    },
+    {
+     "id": "LC23",
+     "num": 23,
+     "title": "Merge k Sorted Lists",
+     "difficulty": "HARD",
+     "pattern": "Pattern 4 — K-way merge",
+     "problem": "Merge k sorted linked lists into one sorted list.",
+     "approach": "The next output node is the smallest of the k current heads. Keep exactly those heads in a min-heap of node pointers. Pop the smallest, append it, and push its `next` if there is one.\n\nThe lambda comparator `a->val > b->val` makes the min-heap; `decltype(cmp)` names its type and the constructor receives the lambda.",
+     "complexity": "O(N log k) for N total nodes · O(k) heap",
+     "trap": "Skip empty lists when seeding the heap — `[[]]` is a valid input, and a `nullptr` in the heap is dereferenced by the comparator. The alternative without a heap is divide-and-conquer pairwise merging, also O(N log k); merging the lists one after another is O(N · k)."
+    },
+    {
+     "id": "LC378",
+     "num": 378,
+     "title": "Kth Smallest Element in a Sorted Matrix",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 4 — Rows as sorted lists",
+     "problem": "Every row and column of an n × n matrix is sorted. Return the k-th smallest element.",
+     "approach": "Each row is a sorted list, so this is a k-way merge that stops after k outputs. Seed the min-heap with the first element of each row (only the first k rows can matter), then pop k − 1 times, each time pushing the next element of the popped row. The top is the answer.",
+     "complexity": "O(k log n) time · O(n) space",
+     "trap": "Do not push all n² elements — that ignores the sortedness and costs O(n² log n). The other well-known solution is **binary search on the value range**, counting elements ≤ mid with a staircase walk in O(n): O(n log(max − min)). Mention it as the follow-up."
+    },
+    {
+     "id": "LC1962",
+     "num": 1962,
+     "title": "Remove Stones to Minimize the Total",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 1 — Take the best, put back",
+     "problem": "k times, choose a pile and remove `floor(pile / 2)` stones from it. Minimise the total left.",
+     "approach": "Removing half of the biggest pile removes the most stones, and the choice never hurts a later one — so always pick the current maximum. Max-heap; keep a running total and subtract what each operation removes.",
+     "complexity": "O(n + k log n) time · O(n) space",
+     "trap": "`floor(pile / 2)` stones are **removed**, so the pile becomes `pile - pile / 2`, which is the **ceiling** of half. Pushing `pile / 2` back instead is off by one on every odd pile."
+    }
+   ]
+  },
+  {
+   "name": "Tier 2 — The placement core",
+   "blurb": "These are what actually get asked. Median from Data Stream, Task Scheduler, Reorganize String and Network Delay Time, plus the scheduling and regret-greedy patterns that turn up in every drive.",
+   "problems": [
+    {
+     "id": "LC295",
+     "num": 295,
+     "title": "Find Median from Data Stream",
+     "difficulty": "HARD",
+     "pattern": "Pattern 5 — Two heaps",
+     "problem": "Design a structure supporting `addNum` and `findMedian` over a growing stream of integers.",
+     "approach": "`lo` is a **max-heap** holding the smaller half; `hi` is a **min-heap** holding the larger half. Invariants: every `lo` ≤ every `hi`, and `lo` has the same size as `hi` or one more.\n\nThe three-line `addNum` keeps both without any case analysis: push into `lo`; move `lo`'s top to `hi` (restores the order); if `hi` became bigger, move its top back (restores the sizes).",
+     "complexity": "O(log n) per add · O(1) per median · O(n) space",
+     "trap": "`(lo.top() + hi.top()) / 2` overflows `int` when both are near 2³¹ and truncates when they are integers. Convert to `double` **before** adding. The follow-ups — *all numbers in [0, 100]* (a count array) and *99% in [0, 100]* (counts plus two small heaps for outliers) — are common."
+    },
+    {
+     "id": "LC621",
+     "num": 621,
+     "title": "Task Scheduler",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 9 — Cooldown queue",
+     "problem": "Tasks are letters; identical tasks need at least n intervals between them. Each interval runs one task or idles. Return the minimum number of intervals.",
+     "approach": "Simulate time. A **max-heap** holds the remaining counts of tasks that are ready; a **queue** holds tasks cooling down with the time they become ready again. Each tick: run the task with the most copies left (or idle), and release any task whose cooldown has ended.\n\nRunning the most frequent first is the greedy choice — it is the task that most constrains the schedule.",
+     "complexity": "O(total time · log 26) = O(answer) · O(1) space for 26 letters",
+     "trap": "The O(n) closed form is `max(tasks.size(), (maxCount − 1) · (n + 1) + numberWithMaxCount)` — know it and be ready to explain it with the 'frame' picture. The simulation is what generalises to variants (task order fixed, different cooldowns), so be able to write both."
+    },
+    {
+     "id": "LC767",
+     "num": 767,
+     "title": "Reorganize String",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 9 — Take the top two",
+     "problem": "Rearrange the string so no two adjacent characters are equal, or return \"\" if impossible.",
+     "approach": "Max-heap of `(count, char)`. Each round pop the **two** most frequent letters and place both — they are different, so this pair is always safe, and the next round's first letter cannot equal the second letter just placed, because that letter was popped *before* re-pushing.\n\nAt the end, at most one letter remains; it is placeable only if its count is 1.",
+     "complexity": "O(n log σ) time · O(σ) space",
+     "trap": "The quick impossibility check is `maxCount > (n + 1) / 2`. Popping one letter at a time and re-pushing it immediately lets the same letter come out twice in a row — popping two per round is what prevents it."
+    },
+    {
+     "id": "LC1642",
+     "num": 1642,
+     "title": "Furthest Building You Can Reach",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 8 — Regret greedy",
+     "problem": "Walk along buildings; each climb needs a ladder or `climb` bricks. Given bricks and ladders, return the furthest index you can reach.",
+     "approach": "Ladders should cover the **largest** climbs. You cannot know which those are in advance, so put a ladder on every climb tentatively, keeping the ladder climbs in a **min-heap**. When you have used one ladder more than you own, take back the ladder from the **smallest** ladder climb and pay for that climb in bricks. If bricks go negative, you are stuck before the next building.",
+     "complexity": "O(n log L) for L ladders · O(L) space",
+     "trap": "Return `i` (the building you are on), not `i + 1`, when bricks run out — you failed to reach `i + 1`. Spending bricks greedily first and ladders later is wrong: it wastes bricks on climbs a ladder should have taken."
+    },
+    {
+     "id": "LC1834",
+     "num": 1834,
+     "title": "Single-Threaded CPU",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 10 — Event simulation",
+     "problem": "Tasks arrive at given times with given durations. A single CPU, when free, picks the available task with the shortest duration (ties: smallest index). Return the processing order.",
+     "approach": "Sort task indices by arrival. Keep a clock and a min-heap of available tasks keyed by `(duration, index)`. Each step: push every task that has arrived by the current time; if none is available, **jump** the clock to the next arrival; otherwise run the top task and advance the clock by its duration.",
+     "complexity": "O(n log n) time · O(n) space",
+     "trap": "The clock must be `long long` — 10⁵ tasks of duration 10⁹ overflow `int`. And jump over idle gaps instead of ticking one unit at a time: arrival times reach 10⁹. Sorting the tasks themselves loses the original indices; sort an index array."
+    },
+    {
+     "id": "LC373",
+     "num": 373,
+     "title": "Find K Pairs with Smallest Sums",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 4 — Implied sorted rows",
+     "problem": "Given two sorted arrays, return the k pairs `(a[i], b[j])` with the smallest sums.",
+     "approach": "Row i is the sorted sequence `a[i]+b[0], a[i]+b[1], …` — so this is a k-way merge over at most k rows. Seed the min-heap with `(a[i]+b[0], i, 0)` for the first k values of i; each pop outputs a pair and pushes the next element of the same row, `(i, j+1)`.",
+     "complexity": "O(k log k) time · O(k) space",
+     "trap": "Generating all n·m pairs is O(nm log nm) and runs out of memory at 10⁵ × 10⁵. Seeding only `(0, 0)` and pushing both `(i+1, j)` and `(i, j+1)` also works but needs a visited set to avoid duplicates — seeding one head per row avoids that entirely."
+    },
+    {
+     "id": "LC355",
+     "num": 355,
+     "title": "Design Twitter",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 4 — Merge followees' feeds",
+     "problem": "Support `postTweet`, `follow`, `unfollow`, and `getNewsFeed` (the 10 most recent tweets from the user and the people they follow).",
+     "approach": "Store each user's tweets in posting order with a global timestamp. A news feed is a **k-way merge** of the followees' tweet lists, newest first: seed a max-heap with each followee's last tweet `(time, user, index)`, pop up to 10 times, pushing the previous tweet of the same user each time.",
+     "complexity": "`getNewsFeed`: O(f + 10 log f) for f followees · others O(1)",
+     "trap": "A user always sees their own tweets — insert `userId` into their own follow set, and make `unfollow` refuse to remove it. Copying and sorting every followee's full tweet list per feed request is O(T log T) and is what the interviewer is steering you away from."
+    },
+    {
+     "id": "LC264",
+     "num": 264,
+     "title": "Ugly Number II",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 4 — Generate successors",
+     "problem": "Return the n-th positive integer whose only prime factors are 2, 3 and 5.",
+     "approach": "Every ugly number is 2, 3 or 5 times a smaller ugly number. Start a min-heap with 1; pop the smallest, and push its three multiples. The n-th distinct pop is the answer.\n\nThe same number is generated several ways (6 = 2·3 = 3·2), so drop equal values when popping.",
+     "complexity": "O(n log n) time · O(n) space",
+     "trap": "Use `long long` in the heap — the pushed multiples of the 1690th ugly number exceed `int`. The O(n) answer is three pointers into the output array (the DP version): know it as the follow-up. Forgetting to skip duplicates returns a repeated number as a later answer."
+    },
+    {
+     "id": "LC658",
+     "num": 658,
+     "title": "Find K Closest Elements",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 2 — Distance with a tie-break",
+     "problem": "Given a sorted array, return the k elements closest to x, in ascending order. On a distance tie, the smaller element is closer.",
+     "approach": "Max-heap of `(|v − x|, v)` of size k. The pair ordering makes the farthest — and, on a tie, the **larger** value — the top, so it is evicted first, which is exactly the tie rule. Sort the k survivors at the end.",
+     "complexity": "O(n log k) time · O(k) space",
+     "trap": "The input is **sorted**, so the optimal solution is a binary search for the window's left edge — O(log(n − k) + k). The heap version is the general one for unsorted input; say both. Check the tie rule on `[1,3]`, k = 1, x = 2: the answer is `[1]`."
+    },
+    {
+     "id": "LC846",
+     "num": 846,
+     "title": "Hand of Straights",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 1 — The smallest must start a run",
+     "problem": "Can the cards be split into groups of `groupSize` consecutive values?",
+     "approach": "The smallest card can only be the **start** of a group — nothing smaller exists to precede it. So repeatedly take the smallest remaining value from a min-heap of distinct values and consume one of each of the next `groupSize` values from a count map.\n\nWhen a value's count drops to zero it must be the current heap minimum; if it is not, a smaller value is stranded and the answer is false.",
+     "complexity": "O(n log n) time · O(n) space",
+     "trap": "Check `hand.size() % groupSize` first. The stranded-value check is the subtle line: without it, a value can hit zero while a smaller one still has copies, and that smaller one can never finish a run. A `std::map` instead of heap + hash map gives the same algorithm with sorted iteration."
+    },
+    {
+     "id": "LC743",
+     "num": 743,
+     "title": "Network Delay Time",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 11 — Dijkstra",
+     "problem": "A signal starts at node k of a weighted directed graph. Return the time for all nodes to receive it, or −1 if some never do.",
+     "approach": "Single-source shortest paths with non-negative weights — Dijkstra. A min-heap of `(dist, node)`; pop the closest unfinished node, relax its edges, push improved distances as **new** entries. The answer is the largest finite distance.",
+     "complexity": "O((V + E) log V) time · O(V + E) space",
+     "trap": "`if (d > dist[u]) continue;` skips stale entries — the lazy-deletion substitute for decrease-key. Without it the result is still correct but slower. And return −1 if any `dist` is still infinite — the graph may be disconnected."
+    },
+    {
+     "id": "LC1353",
+     "num": 1353,
+     "title": "Maximum Number of Events That Can Be Attended",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 6 — Earliest deadline among the available",
+     "problem": "Each event spans days `[start, end]`; you may attend one event per day. Maximise the number of events attended.",
+     "approach": "Sweep day by day. Events that have started join a **min-heap of end days**. Each day attend the available event that **ends soonest** — the one most at risk of being missed — then discard events that have already ended. When nothing is available, jump to the next start day.",
+     "complexity": "O(n log n) time — each loop iteration attends one event · O(n) space",
+     "trap": "Attending the event that *started* first, or the shortest one, is wrong; earliest **end** is the exchange-argument choice. Remember to throw away expired events before each attendance, or you will 'attend' an event on a day after it ended."
+    },
+    {
+     "id": "LC1405",
+     "num": 1405,
+     "title": "Longest Happy String",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 9 — Hold one back",
+     "problem": "Build the longest string using at most a 'a's, b 'b's and c 'c's, with no three equal letters in a row.",
+     "approach": "Max-heap of `(remaining, letter)`. Normally append the most plentiful letter. If that would make three in a row, append **one** of the runner-up instead and put the leader back untouched. If there is no runner-up, stop.",
+     "complexity": "O(a + b + c) time (heap of size ≤ 3) · O(1) extra space",
+     "trap": "When the leader is blocked, use the runner-up **once**, not as many as possible — the leader should resume as soon as it legally can, since it is the one that limits the length. Check the last two characters, not just the last one."
+    },
+    {
+     "id": "LC871",
+     "num": 871,
+     "title": "Minimum Number of Refueling Stops",
+     "difficulty": "HARD",
+     "pattern": "Pattern 8 — Retroactive greedy",
+     "problem": "Drive to `target` with `startFuel` and stations at given positions with given fuel. Return the fewest refuelling stops, or −1.",
+     "approach": "Drive as far as the current fuel allows, pushing the fuel of every station passed into a max-heap. When you cannot reach further, pretend you had stopped at the **best** station passed: pop the largest and add it to the reach. Count the pops.",
+     "complexity": "O(n log n) time · O(n) space",
+     "trap": "It feels like cheating, but it is valid: the decision *which* stations to stop at only matters when fuel runs out, and at that moment the best one passed is always the right choice. Return −1 when the heap is empty and the target is still out of reach."
+    },
+    {
+     "id": "LC1882",
+     "num": 1882,
+     "title": "Process Tasks Using Servers",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 10 — Free and busy heaps",
+     "problem": "Task j arrives at second j. It goes to the free server with the smallest weight (then smallest index). If none is free, it waits for the earliest-freed one. Return the server for each task.",
+     "approach": "Two heaps. `free`: `(weight, index)`. `busy`: `(freeAt, weight, index)`. For each task, set the clock to `max(clock, j)`; if no server is free, jump the clock to the earliest `freeAt`. Move every server freed by now from `busy` to `free`, then assign the top of `free`.",
+     "complexity": "O((n + m) log n) time · O(n) space",
+     "trap": "When several servers free up at the same moment, the choice among them is by weight and index — which is why they must all be moved into `free` before choosing, not taken straight from `busy`. The clock is `long long`: waiting times accumulate."
+    }
+   ]
+  },
+  {
+   "name": "Tier 3 — Harder, but they do appear",
+   "blurb": "Two halves with deletion, locked-versus-available pools, regret greedy with a sort, minimax Dijkstra and lazy deletion. Attempt these once Tier 2 is comfortable.",
+   "problems": [
+    {
+     "id": "LC480",
+     "num": 480,
+     "title": "Sliding Window Median",
+     "difficulty": "HARD",
+     "pattern": "Pattern 12 — Two halves with deletion",
+     "problem": "Return the median of every window of size k.",
+     "approach": "LC 295's two halves, but elements must also **leave**, and `priority_queue` cannot erase. So keep each half as a `multiset` — the heap you can erase from — and rebalance exactly as in LC 295.",
+     "complexity": "O(n log k) time · O(k) space",
+     "trap": "Erase **one** copy with `erase(find(x))` — `erase(x)` removes every duplicate. Average in `double`: `INT_MAX + INT_MAX` overflows."
+    },
+    {
+     "id": "LC502",
+     "num": 502,
+     "title": "IPO",
+     "difficulty": "HARD",
+     "pattern": "Pattern 6 — Locked vs available",
+     "problem": "Starting with capital w, finish at most k projects; each needs a minimum capital and adds its profit. Maximise the final capital.",
+     "approach": "Sort projects by required capital. Keep a pointer: every project whose requirement is now met moves into a **max-heap of profits**. Then take the most profitable available project. Capital only grows, so a project never becomes locked again.",
+     "complexity": "O(n log n) time · O(n) space",
+     "trap": "Stop early when the heap is empty — no remaining project is affordable now, and since capital cannot grow without a project, none ever will be. Re-scanning all projects every round is O(nk)."
+    },
+    {
+     "id": "LC630",
+     "num": 630,
+     "title": "Course Schedule III",
+     "difficulty": "HARD",
+     "pattern": "Pattern 8 — Drop the longest",
+     "problem": "Each course has a duration and a last day. Take courses one at a time from day 1. Maximise the number taken.",
+     "approach": "Process courses by **deadline**. Take each one, adding its duration to the running time and to a max-heap. If the running time now exceeds this course's deadline, drop the **longest** course taken so far (possibly this one). The count never decreases, and the total time shrinks as much as possible.",
+     "complexity": "O(n log n) time · O(n) space",
+     "trap": "Sorting by duration instead of deadline gives wrong answers. And when the deadline breaks, drop the **longest** course, not the most recent — swapping a long course for a short one keeps the count and frees the most time for later courses."
+    },
+    {
+     "id": "LC857",
+     "num": 857,
+     "title": "Minimum Cost to Hire K Workers",
+     "difficulty": "HARD",
+     "pattern": "Pattern 8 — Sort by ratio, evict the heaviest",
+     "problem": "Hire exactly k workers. Pay is proportional to quality within the group, and each worker must get at least their minimum wage. Minimise the total pay.",
+     "approach": "In any group, the worker with the highest `wage/quality` ratio sets the rate, and the cost is `rate × sum of qualities`. Sort workers by ratio. Walking in that order, the current worker is the rate-setter; keep the k **smallest qualities** seen so far with a max-heap of qualities and a running sum.",
+     "complexity": "O(n log n) time · O(n) space",
+     "trap": "Evaluate the cost only once the heap holds exactly k workers. The worker just added may be the one evicted — that is fine, because that candidate cost is then computed with a rate at least as high as needed and can only be an overestimate, never a false minimum."
+    },
+    {
+     "id": "LC1383",
+     "num": 1383,
+     "title": "Maximum Performance of a Team",
+     "difficulty": "HARD",
+     "pattern": "Pattern 8 — Sort by efficiency, evict the slowest",
+     "problem": "Choose at most k engineers to maximise `(sum of speeds) × (minimum efficiency)`. Return it modulo 10⁹ + 7.",
+     "approach": "Sort by efficiency **descending**. Walking in that order, the current engineer has the minimum efficiency of any team built from engineers seen so far. Keep the fastest k speeds with a min-heap and a running sum; evaluate `sum × efficiency` at every step.",
+     "complexity": "O(n log n) time · O(n) space",
+     "trap": "Maximise in `long long` and apply the modulo **only to the final answer** — reducing inside the loop compares wrong numbers. 'At most k' means you evaluate at every size up to k, which this loop does automatically."
+    },
+    {
+     "id": "LC632",
+     "num": 632,
+     "title": "Smallest Range Covering Elements from K Lists",
+     "difficulty": "HARD",
+     "pattern": "Pattern 4 — K-way merge + running max",
+     "problem": "Find the smallest range `[a, b]` containing at least one number from each of k sorted lists.",
+     "approach": "Keep one pointer per list. The heap gives the current minimum across the pointers; track the current maximum separately. `[min, max]` covers every list — record it. The only way to possibly shrink it is to raise the minimum, so advance that list's pointer. Stop when any list is exhausted.",
+     "complexity": "O(N log k) for N total numbers · O(k) space",
+     "trap": "A heap gives only the min, so the max must be maintained by hand — and it only ever grows. Stop as soon as the popped list has no next element: from then on no range can include that list. Ties are broken by the smaller left endpoint, which the strict `<` comparison preserves."
+    },
+    {
+     "id": "LC407",
+     "num": 407,
+     "title": "Trapping Rain Water II",
+     "difficulty": "HARD",
+     "pattern": "Pattern 11 — The wall shrinks from its lowest point",
+     "problem": "Given a 2-D height map, compute how much water it can trap.",
+     "approach": "Water spills over the **lowest** point of the surrounding wall. Start with the border as the wall in a min-heap. Pop the lowest wall cell; each unvisited neighbour holds `max(0, level − height)` water and joins the wall at height `max(level, height)`. The wall moves inward, always from its lowest point.",
+     "complexity": "O(R · C · log(R · C)) time · O(R · C) space",
+     "trap": "The two-pointer solution of LC 42 does not generalise to 2-D — say that, then explain why the heap does. Push the neighbour with the **raised** height `max(level, h)`, not its own height, or water behind it is miscounted."
+    },
+    {
+     "id": "LC778",
+     "num": 778,
+     "title": "Swim in Rising Water",
+     "difficulty": "HARD",
+     "pattern": "Pattern 11 — Minimax Dijkstra",
+     "problem": "At time t you can swim through cells of elevation ≤ t. Return the earliest time you can reach the bottom-right corner from the top-left.",
+     "approach": "The cost of a path is its **highest** cell. Dijkstra works with `max` in place of `+`: a min-heap of `(costSoFar, r, c)`, and moving to a neighbour costs `max(costSoFar, grid[nr][nc])`. The first time the target is popped, its cost is optimal.",
+     "complexity": "O(n² log n) time · O(n²) space",
+     "trap": "Include `grid[0][0]` in the starting cost — you cannot start before the start cell is under water. Alternatives worth naming: binary search on t with a BFS, and union-find adding cells in increasing elevation."
+    },
+    {
+     "id": "LC1675",
+     "num": 1675,
+     "title": "Minimize Deviation in Array",
+     "difficulty": "HARD",
+     "pattern": "Pattern 1 — Normalise, then shrink the max",
+     "problem": "You may double odd numbers and halve even numbers, any number of times. Minimise the difference between the maximum and the minimum.",
+     "approach": "Odd numbers can only go up once; even numbers can only go down. So first push every number to its **maximum** (double the odds). Now the only useful move is halving the current maximum. Use a max-heap, track the minimum, and record `max − min` each step. Stop when the maximum is odd — it can no longer shrink.",
+     "complexity": "O(n log n · log M) for maximum value M · O(n) space",
+     "trap": "Halving anything other than the maximum cannot reduce the deviation. Update the running minimum when you push the halved value — it may become the new minimum. The odd-maximum stop is what terminates the loop."
+    },
+    {
+     "id": "LC218",
+     "num": 218,
+     "title": "The Skyline Problem",
+     "difficulty": "HARD",
+     "pattern": "Pattern 12 — Lazy deletion",
+     "problem": "Given buildings `[left, right, height]` sorted by left edge, return the key points of the skyline.",
+     "approach": "Process events in x order: the next event is either the next building's left edge or the right edge of the tallest live building. Live buildings sit in a max-heap of `(height, right)`. At a right edge, pop every building that has ended — buildings that ended while hidden underneath are removed lazily when they surface. After each event, the skyline height is the heap's top (or 0); output a point when it changes.",
+     "complexity": "O(n log n) time · O(n) space",
+     "trap": "Push **all** buildings that start at the same x before reading the height, and drop a key point when the height does not change — otherwise you emit duplicate or zero-width points. The alternative is a sorted event list with a `multiset` of heights, erasing exactly at each right edge."
+    }
+   ]
+  }
+ ]
+}
