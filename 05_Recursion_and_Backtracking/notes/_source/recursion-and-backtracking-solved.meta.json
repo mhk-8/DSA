@@ -1,0 +1,463 @@
+{
+ "title": "Recursion & Backtracking",
+ "subtitle": "Every problem from Part 16 of the Recursion & Backtracking guide, in order, with a worked C++ solution, the approach behind it, and the mistake that most often breaks it.",
+ "kicker": "Data Structures & Algorithms · C++",
+ "source_cpp": "../../solutions/reference-part16-solutions.cpp",
+ "stats": [
+  [
+   "38",
+   "Problems"
+  ],
+  [
+   "3",
+   "Tiers"
+  ],
+  [
+   "12",
+   "Patterns"
+  ],
+  [
+   "124",
+   "Tests passing"
+  ]
+ ],
+ "footer": "Prepared for <b>Hari</b> &middot; on-campus placement preparation<br>Companion to <b>Recursion-and-Backtracking-Guide.pdf</b> &middot; code verified against <b>reference-part16-solutions.cpp</b><br>Every solution in this document was compiled with <b>g++ -std=c++17 -O2 -Wall</b> and passes its test cases.",
+ "tiers": [
+  {
+   "name": "Tier 1 — Learn the mechanics",
+   "blurb": "Thirteen problems: plain recursion first, then the backtracking template in its four basic shapes. When you can write 78, 46, 39 and 22 from a blank page, you own the template.",
+   "problems": [
+    {
+     "id": "LC509",
+     "num": 509,
+     "title": "Fibonacci Number",
+     "difficulty": "EASY",
+     "pattern": "Pattern 4 — Recurrence from the definition, + memo",
+     "problem": "Return `F(n)` where `F(0) = 0`, `F(1) = 1` and `F(n) = F(n-1) + F(n-2)`, for `0 <= n <= 30`.",
+     "approach": "The definition *is* the code: two base cases and one recurrence. Written naively it makes about 1.6ⁿ calls, because `fib(n-2)` is computed once directly and again inside `fib(n-1)`.\n\nAdd a cache: the answer depends only on `n`, so store it the first time and return it every time after. That is memoization, and it is the bridge from this topic to Dynamic Programming.",
+     "complexity": "O(n) time with memo (O(1.618ⁿ) without) · O(n) space for the memo and the stack",
+     "trap": "Draw the recursion tree for `fib(5)` once — `fib(3)` appears twice and `fib(2)` three times. That picture is the answer to *\"why is the naive version slow?\"*, and interviewers ask it. The follow-up *\"do it in O(1) space\"* is two variables in a loop."
+    },
+    {
+     "id": "LC344",
+     "num": 344,
+     "title": "Reverse String",
+     "difficulty": "EASY",
+     "pattern": "Pattern 1 — Reduce by one, from both ends",
+     "problem": "Reverse a `vector<char>` in place.",
+     "approach": "Handle the outer pair, trust recursion for the inside. Swap `s[l]` and `s[r]`, then reverse `s[l+1..r-1]`. The base case is `l >= r`: zero or one character in the middle, nothing to do.\n\nThis is the shape of every \"both ends\" recursion — palindrome check, reversing an array, and the two-pointer loop you already know, written recursively.",
+     "complexity": "O(n) time · O(n) stack space (the iterative two-pointer loop is O(1))",
+     "trap": "The base case must be `l >= r`, not `l == r`. With an even length the pointers cross without ever being equal, so `l == r` never fires and the recursion runs off the ends. Also say out loud that the iterative version uses O(1) space — the recursive one is here to practise the shape."
+    },
+    {
+     "id": "LC50",
+     "num": 50,
+     "title": "Pow(x, n)",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 2 — Halve the input",
+     "problem": "Compute `x` raised to `n`, where `n` is any 32-bit integer, including negative values.",
+     "approach": "`xⁿ = (x^(n/2))²`, times one extra `x` when `n` is odd. One recursive call on `n/2` means log₂ n levels.\n\nFor negative `n`, compute `(1/x)^(-n)`. Convert `n` to `long long` **first**: `-INT_MIN` does not fit in an `int`.",
+     "complexity": "O(log n) time · O(log n) stack space",
+     "trap": "Two traps, both classic. **Store the half-result**: `power(x, n/2) * power(x, n/2)` makes two calls per level and is O(n), not O(log n) — correct output, wrong complexity. And `n = INT_MIN` overflows when negated as an `int`; the test `myPow(1.0, INT_MIN)` exists precisely to catch it."
+    },
+    {
+     "id": "LC21",
+     "num": 21,
+     "title": "Merge Two Sorted Lists",
+     "difficulty": "EASY",
+     "pattern": "Pattern 1 — Reduce by one, on a list",
+     "problem": "Merge two sorted linked lists into one sorted list by splicing their nodes together.",
+     "approach": "Whichever head is smaller is the head of the answer. Its `next` is the merge of *everything else*, which is the same problem one node smaller — so trust recursion for it.\n\nBase cases: if one list is empty, the answer is the other list.",
+     "complexity": "O(n + m) time · O(n + m) stack space",
+     "trap": "The recursion depth equals the total length, so lists of 10⁵ nodes can overflow the stack. Be ready to give the iterative version with a dummy node (Topic 03) and to say why you would prefer it in production. The `<=` keeps the merge stable."
+    },
+    {
+     "id": "LC779",
+     "num": 779,
+     "title": "K-th Symbol in Grammar",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 4 — Recurrence from the definition",
+     "problem": "Row 1 is `0`. Each next row replaces every `0` with `01` and every `1` with `10`. Return the k-th (1-indexed) symbol of row n, for n up to 30.",
+     "approach": "Row 30 has 2²⁹ symbols, so building it is out. Instead, notice that symbol k of row n is a **child** of symbol ⌈k/2⌉ of row n − 1. The left child (odd k) copies its parent; the right child (even k) is its flip.\n\nSo ask the recursion for the parent, then copy or flip it. One call per row.",
+     "complexity": "O(n) time · O(n) stack space",
+     "trap": "Get the parent index right: it is `(k + 1) / 2`, i.e. ceiling of k/2, for 1-indexed k. Using `k / 2` sends k = 1 to parent 0, which does not exist. The neat closed form — the answer is the parity of `popcount(k - 1)` — is worth mentioning once you have the recursion."
+    },
+    {
+     "id": "LC1823",
+     "num": 1823,
+     "title": "Find the Winner of the Circular Game",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 4 — Josephus recurrence",
+     "problem": "n friends sit in a circle. Counting k places at a time, the k-th friend leaves; counting restarts from the next one. Return the winner (1-indexed).",
+     "approach": "Let J(n) be the 0-indexed survivor among n people. After the first person leaves, the remaining n − 1 form the same game, but numbered starting k places further round. So the survivor of the big game is the survivor of the small game shifted forward by k:\n\n`J(1) = 0`, `J(n) = (J(n-1) + k) % n`.\n\nAdd 1 at the end for the 1-indexed answer.",
+     "complexity": "O(n) time · O(n) stack (or O(1) as a loop)",
+     "trap": "Simulating with a `vector` and `erase` is O(n²) and is what most people write first — fine for n ≤ 500, but say that the recurrence exists. Keep the recurrence 0-indexed and convert once at the end; mixing 1-indexing into the `% n` step gives off-by-one answers."
+    },
+    {
+     "id": "LC78",
+     "num": 78,
+     "title": "Subsets",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 5 — Pick / skip",
+     "problem": "Return every subset of an array of distinct integers, in any order.",
+     "approach": "At index i you make one decision: take `nums[i]` or leave it. Two calls per level, n levels, and every leaf (i == n) is one subset — 2ⁿ of them.\n\n`cur` is shared by reference, so the pick branch must `pop_back()` before the skip branch runs. That push / recurse / pop is the backtracking discipline in its smallest form.",
+     "complexity": "O(n · 2ⁿ) time (2ⁿ subsets, O(n) to copy each) · O(n) recursion space",
+     "trap": "Forgetting the `pop_back()` is the bug to watch for: the skip branch then sees an element that was supposed to be left out, and you get duplicates and missing subsets. The empty input must return `[[]]` — one subset, the empty one — not `[]`."
+    },
+    {
+     "id": "LC90",
+     "num": 90,
+     "title": "Subsets II",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 8 — Duplicate skipping",
+     "problem": "Return every subset of an array that may contain duplicates, without duplicate subsets.",
+     "approach": "Sort, so equal values are adjacent. Use the loop-from-start shape, where each call decides *which value fills the next slot*. Within one call, choosing the first `2` or the second `2` leads to the same subtree, so allow only the first:\n\n`if (i > start && nums[i] == nums[i-1]) continue;`\n\nEvery node of the tree is a subset, so record `cur` on entry.",
+     "complexity": "O(n · 2ⁿ) time worst case · O(n) recursion space",
+     "trap": "`i > start`, **not** `i > 0`. The check must only skip twins at the *same depth*. With `i > 0`, a deeper call that legitimately wants a second `2` — to build `[2,2]` — is blocked, and those subsets vanish. And without the sort the check does nothing at all."
+    },
+    {
+     "id": "LC46",
+     "num": 46,
+     "title": "Permutations",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 7 — The `used` array",
+     "problem": "Return every permutation of an array of distinct integers.",
+     "approach": "Order matters, so every slot may take **any** element not yet used — the loop starts at 0, not at a `start` index. A `used[]` array records which elements are already in `cur`.\n\nChoose (mark used, push), explore, un-choose (unmark, pop). The goal test is `cur.size() == n`.",
+     "complexity": "O(n · n!) time · O(n) recursion space",
+     "trap": "Two pieces of state change on *choose*, so two must be undone on *un-choose*. Resetting `used[i]` but forgetting `pop_back()` — or the reverse — is the most common bug in this problem. The swap-based version (Part 8.2) avoids the `used` array but is harder to extend to duplicates."
+    },
+    {
+     "id": "LC77",
+     "num": 77,
+     "title": "Combinations",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 6 — Loop from `start`",
+     "problem": "Return every combination of k numbers chosen from 1..n.",
+     "approach": "Combinations are unordered, so build each one in increasing order: the next number must be bigger than the last, which is what `dfs(i + 1)` enforces. Stop when `cur` has k numbers.\n\nPrune: if you still need `need` numbers, the loop may only go up to `n - need + 1`, otherwise there are not enough numbers left to finish.",
+     "complexity": "O(k · C(n, k)) time · O(k) recursion space",
+     "trap": "Without the pruning bound the code is still correct, just slower — it walks into dead-end branches that can never reach size k. Interviewers often ask *\"can you prune this?\"* and this bound is the expected answer. Recursing on `i` instead of `i + 1` would allow `[2,2]`."
+    },
+    {
+     "id": "LC39",
+     "num": 39,
+     "title": "Combination Sum",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 6 — Loop from `start`, reuse allowed",
+     "problem": "Given distinct positive candidates and a target, return every combination that sums to the target. Each candidate may be used any number of times.",
+     "approach": "Sort the candidates. Each call picks the next number from `start` onwards, then recurses with **the same index** `i` (reuse is allowed) and a smaller `remain`.\n\nBecause the array is sorted, once `c[i] > remain` every later candidate is too big as well — `break` out of the loop.",
+     "complexity": "Exponential in target / smallest candidate · O(target / min) recursion depth",
+     "trap": "`dfs(i)` vs `dfs(i + 1)` is the entire difference between this problem and Combination Sum II. `start` still matters even with reuse: without it you get both `[2,2,3]` and `[3,2,2]`. And `break` is only safe *because* of the sort — on unsorted input it skips valid answers."
+    },
+    {
+     "id": "LC17",
+     "num": 17,
+     "title": "Letter Combinations of a Phone Number",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 6 — Choices change with depth",
+     "problem": "Given a string of digits 2–9, return every letter string the number could represent on a phone keypad.",
+     "approach": "Depth i handles digit i, and the choices at that depth are that digit's 3 or 4 letters. Push a letter, recurse on i + 1, pop. A leaf is reached when every digit has a letter.",
+     "complexity": "O(n · 4ⁿ) time · O(n) recursion space",
+     "trap": "An empty input must return `[]`, **not** `[\"\"]`. The plain recursion reaches the base case immediately and records one empty string, so the empty case needs its own guard — it is exactly one test case, and it is the one that fails."
+    },
+    {
+     "id": "LC22",
+     "num": 22,
+     "title": "Generate Parentheses",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 10 — Generation with validity counters",
+     "problem": "Return every well-formed string of n pairs of parentheses.",
+     "approach": "Do not generate all 2²ⁿ strings and filter. Only take a branch that can still lead to a valid string:\n\n— add `(` while `open < n`;\n— add `)` while `close < open`.\n\nEvery string that reaches length 2n is then valid by construction.",
+     "complexity": "O(4ⁿ / √n) — the n-th Catalan number of answers, each O(n) to copy · O(n) recursion space",
+     "trap": "The rule for `)` is `close < open`, not `close < n`. With `close < n` you generate `\")(\"`-style invalid strings. Expect the follow-up *\"how many answers are there?\"* — the Catalan numbers 1, 1, 2, 5, 14, 42."
+    }
+   ]
+  },
+  {
+   "name": "Tier 2 — The placement core",
+   "blurb": "These are what actually get asked. N-Queens, Sudoku, Word Search, Permutations II, Combination Sum II, Palindrome Partitioning and merge sort are the most-asked backtracking and recursion questions in on-campus drives.",
+   "problems": [
+    {
+     "id": "LC40",
+     "num": 40,
+     "title": "Combination Sum II",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 8 — Duplicates, no reuse",
+     "problem": "Candidates may contain duplicates and each may be used **at most once**. Return every unique combination summing to the target.",
+     "approach": "Combination Sum with two edits: recurse with `i + 1` (each element used once), and add the Subsets II line so two equal values are never tried for the same slot. The sorted-bound `break` still applies.",
+     "complexity": "O(n · 2ⁿ) worst case · O(n) recursion space",
+     "trap": "All three lines must be right at once: `i + 1`, `i > start` (not `i > 0`), and `break`. With target 8, `[1,1,6]` is an answer — and `i > 0` would wrongly remove it."
+    },
+    {
+     "id": "LC216",
+     "num": 216,
+     "title": "Combination Sum III",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 6 — Fixed size",
+     "problem": "Find every combination of exactly k distinct digits from 1–9 that sums to n.",
+     "approach": "The candidates are just 1..9, in order, used once. Recurse with `d + 1`. When `cur` has k digits, record it only if the remaining sum is zero, and stop either way — a k-digit path can never grow.",
+     "complexity": "O(C(9, k) · k) — tiny · O(k) recursion space",
+     "trap": "The goal test has two conditions — size **and** sum. Checking only `remain == 0` admits combinations with the wrong count; checking only the size admits the wrong sum. Returning as soon as the size is reached (whatever the sum) is also what keeps the tree small."
+    },
+    {
+     "id": "LC47",
+     "num": 47,
+     "title": "Permutations II",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 8 — The `!used[i-1]` rule",
+     "problem": "Return every unique permutation of an array that may contain duplicates.",
+     "approach": "Sort, then use the LC 46 `used[]` template with one extra condition:\n\n`if (i > 0 && a[i] == a[i-1] && !used[i-1]) continue;`\n\nRead it as a rule: **equal values are always placed in left-to-right order.** If the earlier twin is not yet used, using this one first would start an ordering the earlier twin has already explored.",
+     "complexity": "O(n · n!) worst case · O(n) recursion space",
+     "trap": "This is the condition people memorise without understanding, then get backwards. `!used[i-1]` and `used[i-1]` both give correct output — they enforce opposite orderings — but `!used[i-1]` prunes much earlier. If you cannot explain it, say the rule in words: twins go in order. A `set<vector<int>>` to dedupe works too, but it wastes all the duplicate work."
+    },
+    {
+     "id": "LC131",
+     "num": 131,
+     "title": "Palindrome Partitioning",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 9 — Cut at every position",
+     "problem": "Split a string so that every piece is a palindrome. Return every such split.",
+     "approach": "The choice at each step is **where the next piece ends**. From `start`, try every `end`; if `s[start..end]` is a palindrome, push it and partition the rest from `end + 1`. When `start` reaches the end of the string, `cur` is a complete partition.",
+     "complexity": "O(n · 2ⁿ) time · O(n) recursion space",
+     "trap": "Checking each piece with a two-pointer loop makes every check O(n). For long inputs precompute `isPal[i][j]` with the DP from Strings Part 6 — `isPal[i][j] = s[i]==s[j] && isPal[i+1][j-1]` — and every check becomes O(1). Mention it even if you do not write it."
+    },
+    {
+     "id": "LC79",
+     "num": 79,
+     "title": "Word Search",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 12 — Mark, explore, unmark",
+     "problem": "Does the word exist in the grid, built from horizontally or vertically adjacent cells, each cell used at most once?",
+     "approach": "Try every cell as a start. From a cell matching `word[i]`, overwrite it with `#` so this path cannot reuse it, try the four neighbours for `word[i+1]`, then **restore** the cell before returning.\n\n`||` short-circuits, so the search stops the moment one direction succeeds.",
+     "complexity": "O(R · C · 3ᴸ) time for a word of length L · O(L) recursion space",
+     "trap": "**Restore the cell even when the search succeeds** — the solution saves the result in `found` and restores before returning, so the board is left intact. And do not use a global `visited` that is never cleared: a cell blocked for one path must be usable by another. That is the difference between backtracking DFS and graph DFS."
+    },
+    {
+     "id": "LC51",
+     "num": 51,
+     "title": "N-Queens",
+     "difficulty": "HARD",
+     "pattern": "Pattern 11 — Constraint placement",
+     "problem": "Return every arrangement of n queens on an n × n board such that no two attack each other.",
+     "approach": "Place **one queen per row**, so the recursion depth is the row and rows never conflict. For O(1) attack checks keep three boolean arrays: `col[c]`, `diag[r+c]` and `anti[r-c+n-1]`. Every cell on one diagonal shares `r + c`; every cell on the other shares `r - c`.\n\nSet all three plus the board cell on *choose*; clear all four on *un-choose*.",
+     "complexity": "O(n!) upper bound, far less in practice · O(n²) for the board, O(n) recursion",
+     "trap": "The diagonal arrays need **2n − 1** entries, and `r - c` needs the `+ n - 1` shift to be non-negative. Get either wrong and n = 4 may pass while n = 8 writes out of bounds. Scanning the board for attacks instead of using the arrays is correct but is exactly what the interviewer is checking you avoid."
+    },
+    {
+     "id": "LC52",
+     "num": 52,
+     "title": "N-Queens II",
+     "difficulty": "HARD",
+     "pattern": "Pattern 11 — Bitmasks passed by value",
+     "problem": "Return the number of distinct N-Queens solutions.",
+     "approach": "Counting only, so the function returns an `int` and adds up its children. The three occupancy sets become three integers — bit c of `cols` means column c is taken, and so on.\n\nThey are passed **by value**: each call receives its own copy with the new bits set, so there is nothing to undo.",
+     "complexity": "O(n!) upper bound · O(n) recursion space",
+     "trap": "This is the cleanest demonstration of Part 1.4: state passed by value needs no undo. It works because the state is three small integers. Use `1 << c`, not `1 << (c+1)`, and keep n ≤ 30 for an `int` mask — the diagonal masks need 2n − 1 bits."
+    },
+    {
+     "id": "LC37",
+     "num": 37,
+     "title": "Sudoku Solver",
+     "difficulty": "HARD",
+     "pattern": "Pattern 11 — Search, stop at the first answer",
+     "problem": "Fill a 9 × 9 Sudoku board in place. Exactly one solution exists.",
+     "approach": "Track which digits each row, column and box holds, and list the blanks. For each blank try every legal digit: place, recurse, and on success **return true immediately**; otherwise undo. The box index is `(r / 3) * 3 + c / 3`.",
+     "complexity": "O(9^blanks) bound, very fast in practice · O(81) state",
+     "trap": "`return true` must come **before** the undo lines — undoing after a success erases the solution. Choosing the blank with the fewest legal digits next is the standard speed-up."
+    },
+    {
+     "id": "LC93",
+     "num": 93,
+     "title": "Restore IP Addresses",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 9 — Cut, with count pruning",
+     "problem": "Insert three dots into a digit string to form every valid IPv4 address — four parts, each 0–255, no leading zeros.",
+     "approach": "Partition the string into exactly four pieces of length 1–3. Each piece must be ≤ 255 and must not start with `0` unless it *is* `0`.\n\nPrune by length at the top of every call: with `slots` pieces still to place, the remaining characters must number between `slots` and `3 × slots`.",
+     "complexity": "O(3⁴) = O(1) — at most 81 leaves · O(1) space",
+     "trap": "The leading-zero rule: `\"0\"` is fine, `\"01\"` is not. Check it before `stoi`, and `break` rather than `continue` — a longer piece starting with `0` is also invalid. The length pruning is what keeps long inputs from wasting time: a 13-digit string has no answers and should return at once."
+    },
+    {
+     "id": "LC784",
+     "num": 784,
+     "title": "Letter Case Permutation",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 10 — Branch only where the rule allows",
+     "problem": "Return every string formed by changing the case of any letters in `s`. Digits stay as they are.",
+     "approach": "Walk the string. Every character gives the branch *keep it*. A letter also gives the branch *flip its case*. So digits have one child and letters have two.\n\n`s[i] ^= 32` flips the case of an ASCII letter, and applying it again restores it.",
+     "complexity": "O(n · 2ˡ) for l letters · O(n) recursion space",
+     "trap": "Do not branch on digits — that produces each string twice. And the flip must be undone before returning, because `s` is shared by reference. `^ 32` works because `'a' - 'A' == 32`; `toupper` / `tolower` are the clearer alternative if you prefer."
+    },
+    {
+     "id": "LC912",
+     "num": 912,
+     "title": "Sort an Array",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 3 — Divide and conquer (merge sort)",
+     "problem": "Sort an array in O(n log n) without using a built-in sort.",
+     "approach": "Merge sort. Split in the middle, sort each half recursively — trust it — then merge the two sorted halves with two pointers into a buffer and copy back.\n\nAllocate the buffer **once**, outside the recursion, and reuse it.",
+     "complexity": "O(n log n) time always · O(n) buffer + O(log n) recursion",
+     "trap": "Allocating a fresh `vector` inside every merge call is correct but slow enough to TLE on this problem. Compute `mid` as `lo + (hi - lo) / 2`. Use `<=` in the merge comparison to keep the sort **stable** — the written-round follow-up is *\"is merge sort stable, and is quick sort?\"* (yes, no)."
+    },
+    {
+     "id": "LC60",
+     "num": 60,
+     "title": "Permutation Sequence",
+     "difficulty": "HARD",
+     "pattern": "Pattern 7 — Skip whole blocks of permutations",
+     "problem": "Return the k-th permutation (1-indexed, in lexicographic order) of 1..n, for n ≤ 9.",
+     "approach": "Do not generate permutations. There are (n − 1)! permutations starting with each digit, so the first digit is the one whose block contains k. Pick it, remove it, reduce k to its offset within the block, and recurse on the remaining digits.\n\nSwitch k to 0-indexed once at the start and the arithmetic is just `/` and `%`.",
+     "complexity": "O(n²) time (erasing from a vector) · O(n) space",
+     "trap": "The off-by-one: with 1-indexed k, the block is `(k - 1) / (n-1)!`, not `k / (n-1)!`. Convert to 0-indexed at the entry point and never think about it again. Generating with `next_permutation` k times works for small k, but is O(k · n) and too slow for k near 9!."
+    },
+    {
+     "id": "LC241",
+     "num": 241,
+     "title": "Different Ways to Add Parentheses",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 3 — Split on the last operator, + memo",
+     "problem": "Return every value an arithmetic expression of `+`, `-`, `*` can take under all possible parenthesisations.",
+     "approach": "Choose each operator as the **last** one evaluated. Everything to its left becomes one sub-expression and everything to its right another; solve both recursively and combine every left value with every right value.\n\nIf a range contains no operator, it is a number. Memoise on the range `(lo, hi)`, because the same sub-expression is reached from many splits.",
+     "complexity": "Catalan-many results; memo makes each range computed once · O(n²) ranges",
+     "trap": "Results may contain repeated values (`2*3-4*5` gives `-10` twice) — that is correct, do not dedupe. Numbers can have more than one digit, which is why the base case parses the whole range with `stoi` rather than reading one character."
+    },
+    {
+     "id": "LC494",
+     "num": 494,
+     "title": "Target Sum",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 5 — Pick a sign, + memo",
+     "problem": "Put `+` or `-` in front of every number. Count the assignments whose total equals the target.",
+     "approach": "Pick / skip with a twist: each element is always used, and the two branches are its two signs. The answer depends only on `(i, sum)`, and many sign choices reach the same pair, so cache it.\n\n`sum` can be negative, so store at `memo[i][sum + total]` where `total` is the sum of all the numbers.",
+     "complexity": "O(n · total) time and space with memo (O(2ⁿ) without)",
+     "trap": "The index shift `sum + total` is mandatory — a negative index is an out-of-bounds write. Return 0 early if `|target| > total`, which also guarantees the shifted index stays in range. Zeros are tricky: `[0,0,1]`, target 1 has 4 answers, because +0 and −0 are different assignments."
+    },
+    {
+     "id": "LC1239",
+     "num": 1239,
+     "title": "Maximum Length of a Concatenated String with Unique Characters",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 5 — Pick / skip with bitmasks",
+     "problem": "Choose a subsequence of words whose concatenation has all distinct letters. Return the maximum possible length.",
+     "approach": "Turn each word into a 26-bit mask, dropping words that repeat a letter internally. Then pick / skip: skip word i, or take it if `(used & mask) == 0`. The return value is the best length reachable from here, so each call returns `max(skip, take)`.",
+     "complexity": "O(2ⁿ) time for n ≤ 16 words · O(n) recursion space",
+     "trap": "Filter out words like `\"aa\"` **before** the search: their mask has fewer bits than their length, so the overlap test cannot detect the repeat and the length would be overcounted. The final answer is `popcount(used)`, which is why the masks make this so short."
+    }
+   ]
+  },
+  {
+   "name": "Tier 3 — Harder, but they do appear",
+   "blurb": "The same template with heavier pruning, shared resources, a trie, or a memo. Attempt these once Tier 2 is comfortable.",
+   "problems": [
+    {
+     "id": "LC212",
+     "num": 212,
+     "title": "Word Search II",
+     "difficulty": "HARD",
+     "pattern": "Pattern 12 — Grid DFS walking a trie",
+     "problem": "Return every word from a list that can be traced in the grid (adjacent cells, each used once per word).",
+     "approach": "Running LC 79 per word repeats shared prefixes. Put every word in a **trie** and walk board and trie together: no trie edge for this letter means no word continues here, so stop. A node that ends a word stores the word itself.",
+     "complexity": "O(R · C · 4 · 3ᴸ⁻¹) worst case for max word length L · O(total letters) for the trie",
+     "trap": "Report each word once — clear `node->word` after recording it. Follow-up: prune trie nodes whose subtree has no words left."
+    },
+    {
+     "id": "LC140",
+     "num": 140,
+     "title": "Word Break II",
+     "difficulty": "HARD",
+     "pattern": "Pattern 9 — Cut at every position, + memo",
+     "problem": "Insert spaces into `s` to make every sentence whose words are all in the dictionary. Return all of them.",
+     "approach": "From `start`, try every end position; if `s[start..end)` is a word, combine it with every sentence for the rest of the string.\n\nThe sentences for a suffix depend only on `start`, so memoise `start → list of sentences`. The empty suffix has exactly one sentence: the empty one.",
+     "complexity": "Output-sensitive — can be exponential in the number of answers · O(n) memo entries",
+     "trap": "The base case must return `[\"\"]` (one empty sentence), not `[]`. With `[]`, nothing ever combines and every answer is lost. Joining needs care too: do not add a trailing space when the rest is empty."
+    },
+    {
+     "id": "LC698",
+     "num": 698,
+     "title": "Partition to K Equal Sum Subsets",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 11 — Buckets with symmetry pruning",
+     "problem": "Can the array be split into k non-empty subsets with equal sums?",
+     "approach": "Each bucket must reach `sum / k`. Place the numbers one at a time, trying each bucket that still has room.\n\nThree prunes make it fast: sort **descending** so large numbers fail early; skip a bucket whose fill equals the previous bucket's (the two are interchangeable); and if placing into an *empty* bucket failed, stop — every other empty bucket would fail the same way.",
+     "complexity": "O(kⁿ) bound, fast in practice with pruning · O(n) recursion",
+     "trap": "Without the symmetry prunes this times out — k empty buckets produce k identical subtrees for the first number. Check `sum % k` and `max > sum / k` before searching. The bitmask-DP solution is the follow-up if the interviewer wants a guaranteed bound."
+    },
+    {
+     "id": "LC301",
+     "num": 301,
+     "title": "Remove Invalid Parentheses",
+     "difficulty": "HARD",
+     "pattern": "Pattern 10 — Deletion budgets",
+     "problem": "Remove the minimum number of brackets to make the string valid. Return every distinct result.",
+     "approach": "First compute *how many* of each bracket must go: scan once; a `)` with no open partner must be deleted, and every `(` still open at the end must be deleted. Those counts `l` and `r` are the budgets.\n\nThen backtrack character by character: delete a bracket if its budget allows, or keep it if the running balance stays non-negative. Accept at the end only if both budgets are spent and the balance is zero.",
+     "complexity": "O(2ⁿ) worst case · O(n) recursion space",
+     "trap": "Deleting either of two adjacent equal brackets gives the same string, so results must go into a **set**. The budgets are what guarantee *minimum* removals — without them you would have to BFS by number of removals, which is the other standard solution."
+    },
+    {
+     "id": "LC282",
+     "num": 282,
+     "title": "Expression Add Operators",
+     "difficulty": "HARD",
+     "pattern": "Pattern 9 — Cut, plus the `last` trick",
+     "problem": "Insert `+`, `-` or `*` between the digits so the expression evaluates to the target. Return every such expression.",
+     "approach": "Cut the string into numbers, and before each number after the first choose an operator. Carry `val` (the value so far) and `last` (the last term added).\n\n`+` and `-` are simple. For `*`, the previous term must be multiplied, not added: undo it and add the product, `val - last + last * x`, and the new `last` is `last * x`.",
+     "complexity": "O(4ⁿ · n) time · O(n) recursion space",
+     "trap": "Three separate traps. **Leading zeros**: `\"05\"` is not a number — `break` once a piece starts with `0` and is longer than one digit. **Overflow**: use `long long` for `val`, `last` and `x`. **The first number** takes no operator, so it needs its own branch."
+    },
+    {
+     "id": "LC1255",
+     "num": 1255,
+     "title": "Maximum Score Words Formed by Letters",
+     "difficulty": "HARD",
+     "pattern": "Pattern 5 — Pick / skip with a shared resource",
+     "problem": "Each word may be used once; each letter in the pool may be used once. Return the maximum total score of a set of words you can form.",
+     "approach": "Pick / skip over the words, with the letter counts as shared state. To take a word, decrement its letters; if any count goes negative, the word cannot be afforded. Recurse, then **restore the counts whether or not the word was affordable**.",
+     "complexity": "O(2ⁿ · L) for n ≤ 14 words of total length L · O(n) recursion",
+     "trap": "The undo loop must run even when `ok` is false — the decrements already happened. Restoring only on the success path corrupts the counts for every later branch. Doing the decrement and the check in one loop keeps the do and undo exactly symmetric."
+    },
+    {
+     "id": "LC980",
+     "num": 980,
+     "title": "Unique Paths III",
+     "difficulty": "HARD",
+     "pattern": "Pattern 12 — Visit every cell exactly once",
+     "problem": "Count the paths from start to end that walk over every non-obstacle cell exactly once.",
+     "approach": "Count the empty cells first. DFS from the start, blocking each cell as you step on it and unblocking it on the way back, carrying the number of moves still required. At the end cell, the path counts only if that number is zero.",
+     "complexity": "O(3^(R·C)) bound, grid ≤ 20 cells · O(R · C) recursion",
+     "trap": "Off-by-one on the move count: the path must cover every empty cell **and** step onto the end, so the budget is `empty + 1`. Reaching the end with moves left over is a dead end, not a success — return 0 there instead of continuing past it."
+    },
+    {
+     "id": "LC1079",
+     "num": 1079,
+     "title": "Letter Tile Possibilities",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 7 — Branch on distinct counts",
+     "problem": "Count every non-empty sequence of letters that can be made from the tiles (each tile used at most once).",
+     "approach": "Permutations with duplicates, of every length. Branch on **distinct letters** with a count array instead of on tile positions: take one of letter c, count this sequence plus all its extensions, put it back.\n\nBecause each branch is a distinct letter, equal tiles can never produce the same sequence twice.",
+     "complexity": "Bounded by the number of answers, ≤ 7 tiles · O(n) recursion",
+     "trap": "Branching on tile positions (`used[]`) counts `\"AB\"` twice when there are two `A`s. Branching on the count array removes the need for any duplicate-skip rule. The `1 +` counts the current sequence itself — leave it out and you only count the empty one."
+    },
+    {
+     "id": "LC526",
+     "num": 526,
+     "title": "Beautiful Arrangement",
+     "difficulty": "MEDIUM",
+     "pattern": "Pattern 7 — Fill the most constrained position first",
+     "problem": "Count permutations of 1..n where, at every position i, either the number divides i or i divides the number.",
+     "approach": "Ordinary `used[]` permutations, rejecting any number that fails the divisibility test at the current position.\n\nFill positions from **n down to 1**. Large positions have few compatible numbers, so the tree is cut hard near the root, where a cut removes the most work.",
+     "complexity": "Far below O(n!) for n ≤ 15 because of pruning · O(n) recursion",
+     "trap": "Both directions pass, but on n = 15 filling from position 1 explores many more nodes — position 1 accepts every number. This is the clearest example of *prune near the root*: the same check, applied in a better order."
+    },
+    {
+     "id": "LC493",
+     "num": 493,
+     "title": "Reverse Pairs",
+     "difficulty": "HARD",
+     "pattern": "Pattern 3 — Count during the merge",
+     "problem": "Count pairs i < j with `nums[i] > 2 * nums[j]`.",
+     "approach": "Merge sort. Pairs inside each half are counted recursively. For pairs that cross the middle, both halves are already sorted, so one forward sweep counts them: for each `i` in the left half, advance `j` in the right half while `a[i] > 2 * a[j]`, and add how far `j` has moved.\n\nThen do the ordinary merge.",
+     "complexity": "O(n log n) time · O(n) buffer",
+     "trap": "`2 * a[j]` overflows `int` when `a[j]` is near 2³¹ — cast to `long long` first, as the test with `INT_MAX` checks. Count **before** merging and with a separate sweep: the condition `a[i] > 2·a[j]` is not the merge order, so you cannot count inside the merge loop as you can for plain inversions."
+    }
+   ]
+  }
+ ]
+}
